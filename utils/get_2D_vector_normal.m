@@ -1,4 +1,4 @@
-function normal = get_2D_vector_normal(vector)
+function normal = get_2D_vector_normal(edge_vector)
     % Perpendicular vector (rotate 90 degrees counterclockwise)
     normal = [-edge_vector(2), edge_vector(1)];
 

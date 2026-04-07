@@ -32,12 +32,12 @@ function mesh_data = process_mesh_geometry( ...
 
         try
             % Process the data of one single cell and save it in mesh_data.
-            cell = process_cell(cells_data{i}, nodes_data);
-            mesh_data.cell_nodes{i} = cell.nodes;
-            mesh_data.volume(i) = cell.volume;
-            mesh_data.centroid(i, :) = cell.centroid;
-            mesh_data.area{i} = cell.areas;
-            mesh_data.normal{i} = cell.normals;
+            cell_data = process_cell(cells_data{i}, nodes_data);
+            mesh_data.cell_nodes{i} = cell_data.nodes;
+            mesh_data.volume(i) = cell_data.volume;
+            mesh_data.centroid(i, :) = cell_data.centroid;
+            mesh_data.area{i} = cell_data.areas;
+            mesh_data.normal{i} = cell_data.normals;
         catch exception
             msg = sprintf('In cell number %d:\n  %s', ...
                 i, exception.message);

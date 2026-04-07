@@ -1,3 +1,4 @@
+clc; clear all; close all;
 %% Configuration
 
 addpath('mesh_processing');

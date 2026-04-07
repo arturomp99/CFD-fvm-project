@@ -11,10 +11,10 @@ addpath('timestep_control');
 % Initial conditions
 % vector estado inicial
 w0 = [0; % Pos X
-    0;   % Pos Y
-    5;   % Vel X
-    100  % Vel Y
-    ];
+      0; % Pos Y
+      5; % Vel X
+      100 % Vel Y
+      ];
 
 % Constant acceleration
 a_x = 0;
@@ -50,7 +50,6 @@ condition = @stop_at_floor;
 % current time and the previous results structure. We are using here a
 % constant sampling period sampler, with a sampling period of 0.01 s.
 manager = @(w, t, old_results) sample_results(w, t, old_results, 0.01);
-
 
 %% Solve with an explicit method.
 expl_results = solver(w0, t0, problem, expl_propagator, ...

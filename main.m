@@ -2,7 +2,7 @@ clc; clear all; close all;
 %% Configuration
 
 addpath('mesh_processing');
-addpath('utils');
+addpath(genpath('utils'));
 addpath('constants');
 addpath('initial_conditions');
 addpath('sources')

@@ -5,6 +5,7 @@ addpath('mesh_processing');
 addpath('utils');
 addpath('constants');
 addpath('initial_conditions');
+addpath('sources')
 
 nodes_file = FilePaths.NODES;
 cells_file = FilePaths.CELLS;

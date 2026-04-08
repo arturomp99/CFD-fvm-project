@@ -27,8 +27,9 @@ function mesh_data = process_mesh_geometry( ...
     %   descriptive message that includes the offending cell index.
 
     mesh_data = struct();
+    num_cells = length(cells_data);
 
-    for i = 1:length(cells_data)
+    for i = 1:num_cells
 
         try
             % Process the data of one single cell and save it in mesh_data.
@@ -46,4 +47,5 @@ function mesh_data = process_mesh_geometry( ...
 
     end
 
+    mesh_data.num_cells = num_cells;
 end

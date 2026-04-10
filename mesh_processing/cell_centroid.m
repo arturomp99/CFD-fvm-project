@@ -1,4 +1,4 @@
-function [centroid] = cell_centroid(cell_nodes)
+function c = cell_centroid(cell_nodes)
     %CELL_CENTROID Compute the centroid of a polygonal cell given its node coordinates.
     %   centroid = CELL_CENTROID(cell_nodes) calculates the geometric centroid
     %   of a polygon defined by its vertices using MATLAB's polyshape.
@@ -24,4 +24,5 @@ function [centroid] = cell_centroid(cell_nodes)
     polygon = polyshape(cell_nodes(:, 1), cell_nodes(:, 2));
 
     % Get the centroid
-    centroid = polygon.centroid;
+    [c_x, c_y] = centroid(polygon);
+    c = [c_x, c_y];

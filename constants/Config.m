@@ -19,6 +19,14 @@ classdef Config
         IS_SOURCE_IMPLICIT = false;
         CONVECTIVE_FLUX_INTERPOLATOR = @(state, cells) ... % los interpoladores estan definidos en convective_flux\interpolators
             upwind_interpolator(state, cells);
+        PROPAGATOR = @(state, time, d_time, problem) ...
+            bw_euler(state, time, d_time, problem);
+        TIMESTEP_CALCULATOR = @(w, t) ...
+            constant_dt(w, t, 0.01);
+        STOPPING_CONDITION = @(w, t) ...
+            stop_at_time(t, 1.5);
+        RESULTS_MANAGER = @(w, t, old_results) ...
+            sample_results(w, t, old_results, 0.01);
     end
 
 end

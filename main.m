@@ -10,7 +10,7 @@ addpath(genpath('convective_flux'));
 addpath('stopping_criteria')
 addpath('timestep_control')
 addpath('propagators')
- addpath('results_manager')
+addpath('results_manager')
 
 nodes_file = FilePaths.NODES;
 cells_file = FilePaths.CELLS;
@@ -44,23 +44,23 @@ w0 = initial_conditions(centroids_x);
 
 problem = @(state, time) fvm_1D_euler(state, cells);
 
-time_integrator = @bw_euler;
+propagator = Config.PROPAGATOR;
 
-timestep_calculator = @(w, t) constant_dt(w, t, 0.01);
+timestep_calculator = Config.TIMESTEP_CALCULATOR;
 
-stopping_condition = @(w, t) stop_at_time(t, 1.5);
+stopping_condition = Config.STOPPING_CONDITION;
 
 % Use a sampling period of 0.01 s. Configure the results manager using an
 % anonymous function, so the solver only sees a function that depends on
 % the state vector, the time and the previous results structure.
-manager = @(w, t, old_results) sample_results(w, t, old_results, 0.01);
+manager = Config.RESULTS_MANAGER;
 
 %% Resolution
 results = solver( ...
     w0, ...
     0., ...
     problem, ...
-    time_integrator, ...
+    propagator, ...
     timestep_calculator, ...
     stopping_condition, ...
     manager ...

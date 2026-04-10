@@ -5,10 +5,12 @@ addpath('mesh_processing');
 addpath(genpath('utils'));
 addpath('constants');
 addpath('initial_conditions');
-addpath('sources')
+addpath('problems/fvm_1D_euler');
+addpath(genpath('convective_flux'));
 addpath('stopping_criteria')
 addpath('timestep_control')
 addpath('propagators')
+ addpath('results_manager')
 
 nodes_file = FilePaths.NODES;
 cells_file = FilePaths.CELLS;
@@ -25,8 +27,9 @@ cells = mesh_processor(nodes_file, cells_file, bc_files);
 %   - la energía interna más la energía cinética para cada celda.
 
 initial_conditions = Config.INITIAL_CONDITIONS;
-source_terms = Config.SOURCE_TERMS;
-boundary_conditions = Config.BOUNDARY_CONDITIONS;
+centroids_x = reshape([cells.centroid], 2, [])';
+centroids_x = centroids_x(:, 1);
+w0 = initial_conditions(centroids_x);
 
 problem = @(state, time) fvm_1D_euler(state, cells);
 
@@ -43,7 +46,7 @@ manager = @(w, t, old_results) sample_results(w, t, old_results, 0.01);
 
 %% Resolution
 results = solver( ...
-    initial_conditions, ...
+    w0, ...
     0., ...
     problem, ...
     time_integrator, ...

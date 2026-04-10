@@ -24,9 +24,9 @@ function state = sod(pressure, density, velocity, shock_pos, cells_centroid_x)
     density_vec(cells_centroid_x < shock_pos) = density.left;
     density_vec(cells_centroid_x > shock_pos) = density.right;
     momentum_vec(cells_centroid_x < shock_pos) = momentum.left;
-    momentum_vec(cells_centroid_x < shock_pos) = momentum.left;
+    momentum_vec(cells_centroid_x > shock_pos) = momentum.right;
     energy_vec(cells_centroid_x < shock_pos) = energy.left;
-    energy_vec(cells_centroid_x < shock_pos) = energy.left;
+    energy_vec(cells_centroid_x > shock_pos) = energy.right;
 
     state = [density_vec; momentum_vec; energy_vec];
 end

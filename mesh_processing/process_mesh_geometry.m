@@ -20,7 +20,6 @@ function cells = process_mesh_geometry( ...
 
         % try
         % Process the data of one single cell and save it in mesh_data.
-        process_cell(cells_data{cell_index}, nodes_data);
         cells(cell_index) = process_cell(cells_data{cell_index}, nodes_data);
         % catch exception
         %     msg = sprintf('In cell number %d:\n  %s', ...

@@ -1,24 +1,21 @@
 function [dt] = CFL_dt(CFL, c, dx)
-    %CFL_DT Documentación muy extensa e interesante.
-    %   Detalles varios del cálculo.
+    %CFL_DT Computes the time step from the CFL stability condition.
+    %   dt = CFL_DT(CFL, c, dx) calculates the maximum stable time step
+    %   dt = CFL * min(dx / c) across all cells.
     %
     %   Inputs:
     %   -------
-    %   w :
-    %     Vector de estado.
-    %   t :
-    %     Instante temporal. [s]
-    %   CFL :
-    %     Courant-Friedrichs-Levvy constant.
-    %   c :
-    %     Propagation speed. [m / s]
-    %   dx :
-    %     Mesh size vector. [m]
+    %   CFL : double
+    %     Courant-Friedrichs-Lewy number (typically <= 1 for explicit schemes).
+    %   c : double
+    %     Wave propagation speed. [m/s]
+    %   dx : vector
+    %     Cell sizes. [m]
     %
     %   Outputs:
     %   --------
-    %   dt :
-    %     Paso temporal a dar. [s]
+    %   dt : double
+    %     Time step satisfying the CFL condition. [s]
 
     dt = CFL * min(dx ./ c);
 

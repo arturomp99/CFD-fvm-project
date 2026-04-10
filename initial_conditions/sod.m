@@ -1,5 +1,22 @@
 function state = sod(pressure, density, velocity, shock_pos, cells_centroid_x)
-    % SOD shock tube problem initial conditions
+    %SOD Generates initial conditions for the Sod shock tube problem.
+    %   state = SOD(pressure, density, velocity, shock_pos, cells_centroid_x)
+    %   assigns left-state and right-state primitive variables on either side of
+    %   a discontinuity at x = shock_pos, then converts them to the conserved
+    %   variable vector [density; momentum; total energy].
+    %
+    %   Inputs:
+    %   -------
+    %   pressure : struct with fields .left and .right - Pressure values [Pa].
+    %   density  : struct with fields .left and .right - Density values [kg/m^3].
+    %   velocity : struct with fields .left and .right - Velocity values [m/s].
+    %   shock_pos : double - x-coordinate of the initial discontinuity. [m]
+    %   cells_centroid_x : column vector (N x 1) - x-coordinates of cell centroids. [m]
+    %
+    %   Outputs:
+    %   --------
+    %   state : column vector (3*N x 1)
+    %     Concatenated initial state [density (N); momentum (N); total energy (N)].
 
     % Example usage in the Config.m file
     % INITIAL_CONDITIONS = @(pos) ... % funcion de la posición

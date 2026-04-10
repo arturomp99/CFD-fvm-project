@@ -1,16 +1,19 @@
 function [dt] = constant_dt(w, t, dt0)
-    %CONSTANT_DT Documentación muy extensa e interesante.
-    %   Detalles varios del cálculo.
+    %CONSTANT_DT Returns a fixed time step regardless of the current state.
+    %   dt = CONSTANT_DT(w, t, dt0) is a trivial timestep calculator that
+    %   always returns the pre-configured constant dt0. The state vector w and
+    %   time t are accepted for interface compatibility with the solver but
+    %   are not used.
     %
     %   Inputs:
     %   -------
-    %   w : Vector de estado.
-    %   t : Instante temporal. [s]
-    %   dt0 : Paso temporal constante. [s]
+    %   w   : column vector - Current state vector (unused).
+    %   t   : double        - Current time (unused). [s]
+    %   dt0 : double        - Constant time step to return. [s]
     %
     %   Outputs:
     %   --------
-    %   dt : Paso temporal a dar. [s]
+    %   dt : double - Time step. [s]
 
     dt = dt0;
 

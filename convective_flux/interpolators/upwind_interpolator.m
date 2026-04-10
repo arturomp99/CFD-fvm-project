@@ -15,19 +15,19 @@ function [A, b] = upwind_interpolator(state, cells)
             get_velocity_at_faces(cell_velocity, left_neighbour_velocity, right_neighbour_velocity);
 
         if (cell_velocity > 0)
-            A(cell_index) = right_face_velocity;
-            A(num_cells + cell_index) = right_face_velocity;
-            A(2 * num_cells + cell_index) = right_face_velocity;
-            A(neighbours.left) = -left_face_velocity;
-            A(num_cells + neighbours.left) = -left_face_velocity;
-            A(2 * num_cells + neighbours.left) = -left_face_velocity;
+            A(cell_index, cell_index) = right_face_velocity;
+            A(num_cells + cell_index, num_cells + cell_index) = right_face_velocity;
+            A(2 * num_cells + cell_index, 2 * num_cells + cell_index) = right_face_velocity;
+            A(cell_index, neighbours.left) = -left_face_velocity;
+            A(num_cells + cell_index, num_cells + neighbours.left) = -left_face_velocity;
+            A(2 * num_cells + cell_index, 2 * num_cells + neighbours.left) = -left_face_velocity;
         else
-            A(neighbours.right) = right_face_velocity;
-            A(num_cells + neighbours.right) = right_face_velocity;
-            A(2 * num_cells + neighbours.right) = right_face_velocity;
-            A(cell_index) = -left_face_velocity;
-            A(num_cells + cell_index) = -left_face_velocity;
-            A(2 * num_cells + cell_index) = -left_face_velocity;
+            A(cell_index, neighbours.right) = right_face_velocity;
+            A(num_cells + cell_index, num_cells + neighbours.right) = right_face_velocity;
+            A(2 * num_cells + cell_index, 2 * num_cells + neighbours.right) = right_face_velocity;
+            A(cell_index, cell_index) = -left_face_velocity;
+            A(num_cells + cell_index, num_cells + cell_index) = -left_face_velocity;
+            A(2 * num_cells + cell_index, 2 * num_cells + cell_index) = -left_face_velocity;
         end
 
     end

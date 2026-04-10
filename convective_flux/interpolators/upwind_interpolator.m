@@ -32,8 +32,19 @@ function [A, b] = upwind_interpolator(state, cells)
         neighbours = get_neighour_cells(cell, cells);
 
         cell_velocity = get_cell_velocity(cell_index, num_cells, state);
-        left_neighbour_velocity = get_cell_velocity(neighbours.left, num_cells, state);
-        right_neighbour_velocity = get_cell_velocity(neighbours.right, num_cells, state);
+
+        % For boundary cells the missing neighbour has zero-gradient velocity
+        % (same as current cell), giving zero net flux at that boundary face.
+        if ~isempty(neighbours.left)
+            left_neighbour_velocity = get_cell_velocity(neighbours.left, num_cells, state);
+        else
+            left_neighbour_velocity = cell_velocity;
+        end
+        if ~isempty(neighbours.right)
+            right_neighbour_velocity = get_cell_velocity(neighbours.right, num_cells, state);
+        else
+            right_neighbour_velocity = cell_velocity;
+        end
 
         [left_face_velocity, right_face_velocity] = ...
             get_velocity_at_faces(cell_velocity, left_neighbour_velocity, right_neighbour_velocity);
@@ -42,13 +53,17 @@ function [A, b] = upwind_interpolator(state, cells)
             A(cell_index, cell_index) = right_face_velocity;
             A(num_cells + cell_index, num_cells + cell_index) = right_face_velocity;
             A(2 * num_cells + cell_index, 2 * num_cells + cell_index) = right_face_velocity;
-            A(cell_index, neighbours.left) = -left_face_velocity;
-            A(num_cells + cell_index, num_cells + neighbours.left) = -left_face_velocity;
-            A(2 * num_cells + cell_index, 2 * num_cells + neighbours.left) = -left_face_velocity;
+            if ~isempty(neighbours.left)
+                A(cell_index, neighbours.left) = -left_face_velocity;
+                A(num_cells + cell_index, num_cells + neighbours.left) = -left_face_velocity;
+                A(2 * num_cells + cell_index, 2 * num_cells + neighbours.left) = -left_face_velocity;
+            end
         else
-            A(cell_index, neighbours.right) = right_face_velocity;
-            A(num_cells + cell_index, num_cells + neighbours.right) = right_face_velocity;
-            A(2 * num_cells + cell_index, 2 * num_cells + neighbours.right) = right_face_velocity;
+            if ~isempty(neighbours.right)
+                A(cell_index, neighbours.right) = right_face_velocity;
+                A(num_cells + cell_index, num_cells + neighbours.right) = right_face_velocity;
+                A(2 * num_cells + cell_index, 2 * num_cells + neighbours.right) = right_face_velocity;
+            end
             A(cell_index, cell_index) = -left_face_velocity;
             A(num_cells + cell_index, num_cells + cell_index) = -left_face_velocity;
             A(2 * num_cells + cell_index, 2 * num_cells + cell_index) = -left_face_velocity;

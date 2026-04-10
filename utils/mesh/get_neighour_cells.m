@@ -20,6 +20,8 @@ function neighbours = get_neighour_cells( ...
     %     .right - Index of the right neighbour cell.
 
     neighbours_indices = cell.connectivity;
+    neighbours.left = [];
+    neighbours.right = [];
 
     for i = 1:length(neighbours_indices)
         neighbour_index = neighbours_indices(i);

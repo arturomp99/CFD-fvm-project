@@ -20,18 +20,20 @@ function cell_data = process_cell(cell_nodes_indices, all_nodes_data)
     %   node indices, then computes the cell area, centroid, face areas, and
     %   normals using helper functions.
 
-    cell_data.nodes = [];
+    % initialize the cell_data struct
+    cell_data = struct( ...
+        'nodes', [], ...
+        'faces', [], ...
+        'volume', 0, ...
+        'centroid', [0, 0], ...
+        'area', [], ...
+        'normals', [0, 0] ...
+    );
 
-    for node_index = cell_nodes_indices
-        node_coordinates = all_nodes_data{node_index};
-        cell_data.nodes = [
-                           cell_data.nodes;
-                           node_coordinates
-                           ];
-    end
-
+    cell_data.nodes = cell_nodes(cell_nodes_indices, all_nodes_data);
+    cell_data.faces = cell_faces(cell_data.nodes);
     cell_data.volume = polyarea(cell_data.nodes(:, 1), cell_data.nodes(:, 2));
     cell_data.centroid = cell_centroid(cell_data.nodes);
-    cell_data.areas = cell_areas(cell_data.nodes);
+    cell_data.area = cell_areas(cell_data.nodes);
     cell_data.normals = cell_normals(cell_data.nodes, cell_data.centroid);
 end

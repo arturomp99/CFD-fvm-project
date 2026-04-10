@@ -13,7 +13,7 @@ bc_files = FilePaths.BOUNDARY_CONDITIONS;
 
 %% Mesh processing
 
-[mesh] = mesh_processor(nodes_file, cells_file, bc_files);
+cells = mesh_processor(nodes_file, cells_file, bc_files);
 
 %% Problem configuration
 % se concatenarán 3 vectores uno detrás de otro

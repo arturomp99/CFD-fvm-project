@@ -1,5 +1,5 @@
 function state = uniform(pressure, density, velocity, cells_centroid_x)
-    momentum = pressure * velocity;
+    momentum = density * velocity;
     energy = get_internal_energy(density, pressure, velocity);
 
     num_cells = size(cells_centroid_x, 1);

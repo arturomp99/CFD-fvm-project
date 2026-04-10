@@ -1,8 +1,18 @@
 function state = sod(pressure, density, velocity, shock_pos, cells_centroid_x)
     % SOD shock tube problem initial conditions
 
-    momentum.left = pressure.left * velocity.left;
-    momentum.right = pressure.right * velocity.right;
+    % Example usage in the Config.m file
+    % INITIAL_CONDITIONS = @(pos) ... % funcion de la posición
+    %         sod( ...
+    %         struct('left', 1., 'right', 0.1), ... % pressure
+    %         struct('left', 1., 'right', 0.125), ... % density
+    %         struct('left', 0., 'right', 0.0), ... % velocity
+    %         0.5, ...
+    %         pos ...
+    %     );
+
+    momentum.left = density.left * velocity.left;
+    momentum.right = density.right * velocity.right;
     energy.left = get_internal_energy(density.left, pressure.left, velocity.left);
     energy.right = get_internal_energy(density.right, pressure.right, velocity.right);
 

@@ -1,66 +1,46 @@
-function connectivity = compute_connectivity(input_mesh)
-    %COMPUTE_CONNECTIVITY Compute the connectivity of a mesh and save it.
-    %   The connectivity is saved as a property of the mesh called
-    %   connectivity. It is a cell array (one element per cell), in which each
-    %   element has a vector of cell or boundary condition indices.
+function output_cells = compute_connectivity(input_cells)
+    %COMPUTE_CONNECTIVITY Build adjacency information for mesh cells.
+    %   output_cells = COMPUTE_CONNECTIVITY(input_cells) computes which cells
+    %   are neighbors (share a common face) for each cell in the mesh.
     %
-    %   Input
-    %   -----
-    %   input_mesh
-    %     Mesh structure to be processed.
+    %   Input:
+    %       input_cells - array of cell structures, each with a 'faces' field
+    %                     containing face definitions (N-by-2-by-2 arrays).
     %
-    %   Output
-    %   ------
-    %   output_mesh
-    %     Mesh structure processed. Includes the connectivity information.
+    %   Output:
+    %       output_cells - array of cell structures with added 'connectivity' field.
+    %                      For each cell, connectivity(i) contains the indices
+    %                      of all neighboring cells that share a face with cell i.
+    %
+    %   The function uses SHARE_FACE to determine if two cells are neighbors,
+    %   then stores the neighbor indices in each cell's connectivity field.
+    %
+    %   Example:
+    %       For a mesh with 3 cells where cells 1 and 2 share a face,
+    %       output_cells(1).connectivity = [2]
+    %       output_cells(2).connectivity = [1]
+    %       output_cells(3).connectivity = []  % isolated cell
 
-    num_cells = length(input_mesh.volume);
-    connectivity = cell(num_cells, 1);
-
-    % Build a map from edge (sorted node pair) to list of cells that have it
-    edge_map = containers.Map('KeyType', 'char', 'ValueType', 'any');
+    output_cells = input_cells;
+    num_cells = length(input_cells);
 
     for cell_index = 1:num_cells
-        cell_nodes = input_mesh.cell_nodes{cell_index};
-        num_nodes = length(cell_nodes);
-        connectivity{cell_index} = zeros(1, num_nodes); % One per face/edge
+        output_cells(cell_index).connectivity = [];
+        cell = input_cells(cell_index);
 
-        for cell_node_index = 1:num_nodes
-            next_node = get_next_vertex_index(cell_node_index, num_nodes);
-            n1 = cell_nodes(cell_node_index);
-            n2 = cell_nodes(next_node);
-            % Sort nodes to create unique key
-            key = sprintf('%d_%d', min(n1, n2), max(n1, n2));
+        % Loop through all OTHER cells (skip self-comparison)
+        for other_cell_index = 1:num_cells
 
-            if ~isKey(edge_map, key)
-                edge_map(key) = [];
+            if other_cell_index ~= cell_index
+                other_cell = input_cells(other_cell_index);
+
+                if share_face(cell, other_cell)
+                    output_cells(cell_index).connectivity = ...
+                        [output_cells(cell_index).connectivity, other_cell_index];
+                end
+
             end
 
-            edge_map(key) = [edge_map(key), i];
-        end
-
-    end
-
-    % Now, assign connectivity
-    for i = 1:num_cells
-        cell_nodes = input_mesh.cell_nodes{i};
-        num_nodes = length(cell_nodes);
-
-        for node_index = 1:num_nodes
-            next_node_index = get_next_vertex_index(node_index, num_nodes);
-            node = cell_nodes(node_index);
-            next_node = cell_nodes(next_node_index);
-            key = sprintf('%d_%d', min(n1, n2), max(n1, n2));
-            neighbors = edge_map(key);
-            neighbors = neighbors(neighbors ~= i); % Remove self
-
-            if isempty(neighbors)
-                conn = 0; % Boundary
-            else
-                conn = neighbors(1); % Neighbor cell index
-            end
-
-            connectivity{i}(j) = conn;
         end
 
     end

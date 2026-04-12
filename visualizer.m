@@ -18,9 +18,10 @@ function visualizer(results, centroids_x)
     N = length(centroids_x);
     t_vec = results(:, 1);
 
-    density = results(:, 2:N + 1);
-    momentum = results(:, N + 2:2 * N + 1);
-    energy = results(:, 2 * N + 2:3 * N + 1);
+    density = results(:, 2 : N + 1);
+    momentum = results(:, N + 2 : 2*N + 1);
+    velocity = momentum ./ density;
+    energy = results(:, 2*N + 2 : 3*N + 1);
 
     [X, T] = meshgrid(centroids_x, t_vec);
 
@@ -43,16 +44,16 @@ function visualizer(results, centroids_x)
     subplot(3, 1, 2);
 
     if (Config.DIFFUMINATED_VISUALIZATION)
-        contourf(X, T, momentum, 20);
+        contourf(X, T, velocity, 20);
     else
-        imagesc(centroids_x, t_vec, momentum);
+        imagesc(centroids_x, t_vec, velocity);
         set(gca, 'YDir', 'normal');
     end
 
     colorbar();
     xlabel('x [m]');
     ylabel('t [s]');
-    title('Momentum \rho v [kg/(m^2\cdots)]');
+    title('Velocity v [m/s]');
 
     subplot(3, 1, 3);
 

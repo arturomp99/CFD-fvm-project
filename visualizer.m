@@ -32,6 +32,7 @@ function visualizer(results, centroids_x)
         contourf(X, T, density, 20);
     else
         imagesc(centroids_x, t_vec, density);
+        set(gca, 'YDir', 'normal');
     end
 
     colorbar();
@@ -45,6 +46,7 @@ function visualizer(results, centroids_x)
         contourf(X, T, momentum, 20);
     else
         imagesc(centroids_x, t_vec, momentum);
+        set(gca, 'YDir', 'normal');
     end
 
     colorbar();
@@ -58,6 +60,7 @@ function visualizer(results, centroids_x)
         contourf(X, T, energy, 20);
     else
         imagesc(centroids_x, t_vec, energy);
+        set(gca, 'YDir', 'normal');
     end
 
     colorbar();

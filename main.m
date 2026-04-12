@@ -1,5 +1,4 @@
 clc; clear all; close all;
-%% Configuration
 
 addpath('mesh_processing');
 addpath(genpath('utils'));
@@ -12,11 +11,11 @@ addpath('timestep_control')
 addpath('propagators')
 addpath('results_manager')
 
+%% Mesh processing
+
 nodes_file = FilePaths.NODES;
 cells_file = FilePaths.CELLS;
 bc_files = FilePaths.BOUNDARY_CONDITIONS;
-
-%% Mesh processing
 
 cells = mesh_processor(nodes_file, cells_file, bc_files);
 

@@ -1,7 +1,8 @@
 function visualizer(results, centroids_x)
     %VISUALIZER Plots the space-time evolution of the 1D Euler solution.
-    %   VISUALIZER(results, centroids_x) produces three space-time contour plots,
-    %   one for each conserved variable: density, momentum, and total energy.
+    %   VISUALIZER(results, centroids_x) produces a 3x2 grid of space-time plots,
+    %   one for each of: density, velocity, momentum, temperature, pressure and
+    %   total energy.
     %
     %   The horizontal axis is the cell centroid x-coordinate, the vertical axis
     %   is time, and the colour represents the variable's value at that (x, t) point.
@@ -18,55 +19,38 @@ function visualizer(results, centroids_x)
     N = length(centroids_x);
     t_vec = results(:, 1);
 
-    density = results(:, 2 : N + 1);
+    density  = results(:, 2 : N + 1);
     momentum = results(:, N + 2 : 2*N + 1);
+    energy   = results(:, 2*N + 2 : 3*N + 1);
+
     velocity = momentum ./ density;
-    energy = results(:, 2*N + 2 : 3*N + 1);
+    internal_energy = energy - 0.5 * momentum .* velocity;  % e = E - 0.5*rho*v^2 [J/m^3]
+    temperature = internal_energy ./ (density * Air.C_V);   % T = e/(rho*Cv) [K]
+    pressure = density * Air.R .* temperature;              % p = rho*R*T [Pa]
 
     [X, T] = meshgrid(centroids_x, t_vec);
 
+    vars   = {density, velocity, momentum, temperature, pressure, energy};
+    titles = {'Density \rho [kg/m^3]', 'Velocity v [m/s]', ...
+              'Momentum \rho v [kg/(m^2\cdots)]', 'Temperature T [K]', ...
+              'Pressure p [Pa]', 'Total energy E [J/m^3]'};
+
     figure;
 
-    subplot(3, 1, 1);
+    for k = 1:6
+        subplot(3, 2, k);
 
-    if (Config.DIFFUMINATED_VISUALIZATION)
-        contourf(X, T, density, 20);
-    else
-        imagesc(centroids_x, t_vec, density);
-        set(gca, 'YDir', 'normal');
+        if (Config.DIFFUMINATED_VISUALIZATION)
+            contourf(X, T, vars{k}, 20);
+        else
+            imagesc(centroids_x, t_vec, vars{k});
+            set(gca, 'YDir', 'normal');
+        end
+
+        colorbar();
+        xlabel('x [m]');
+        ylabel('t [s]');
+        title(titles{k});
     end
-
-    colorbar();
-    xlabel('x [m]');
-    ylabel('t [s]');
-    title('Density \rho [kg/m^3]');
-
-    subplot(3, 1, 2);
-
-    if (Config.DIFFUMINATED_VISUALIZATION)
-        contourf(X, T, velocity, 20);
-    else
-        imagesc(centroids_x, t_vec, velocity);
-        set(gca, 'YDir', 'normal');
-    end
-
-    colorbar();
-    xlabel('x [m]');
-    ylabel('t [s]');
-    title('Velocity v [m/s]');
-
-    subplot(3, 1, 3);
-
-    if (Config.DIFFUMINATED_VISUALIZATION)
-        contourf(X, T, energy, 20);
-    else
-        imagesc(centroids_x, t_vec, energy);
-        set(gca, 'YDir', 'normal');
-    end
-
-    colorbar();
-    xlabel('x [m]');
-    ylabel('t [s]');
-    title('Total energy E [J/m^3]');
 
 end

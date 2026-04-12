@@ -5,8 +5,8 @@ classdef Config
         INITIAL_CONDITIONS = @(pos) ... % funcion de la posición
             sod( ...
             struct('left', 1., 'right', 0.1), ... % pressure
-            struct('left', 1., 'right', 0.125), ... % density
-            struct('left', 0., 'right', 0.0), ... % velocity
+            struct('left', 10., 'right', 0.125), ... % density
+            struct('left', 0.1, 'right', 0.1), ... % velocity
             0.5, ...
             pos ...
         );
@@ -27,6 +27,9 @@ classdef Config
             stop_at_time(t, 1.5);
         RESULTS_MANAGER = @(w, t, old_results) ...
             sample_results(w, t, old_results, 0.01);
+
+        % Solution
+        DIFFUMINATED_VISUALIZATION = false;
     end
 
 end

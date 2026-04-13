@@ -1,8 +1,6 @@
 classdef Config
 
     properties (Constant)
-        GAMMA = 1.4;
-
         T0 = 0.0;
         T_END = 0.2;
         SAMPLE_DT = 1e-3;

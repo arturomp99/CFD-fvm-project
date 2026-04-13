@@ -19,21 +19,21 @@ function visualizer(results, centroids_x)
     N = length(centroids_x);
     t_vec = results(:, 1);
 
-    density  = results(:, 2 : N + 1);
-    momentum = results(:, N + 2 : 2*N + 1);
-    energy   = results(:, 2*N + 2 : 3*N + 1);
+    density = results(:, 2:N + 1);
+    momentum = results(:, N + 2:2 * N + 1);
+    energy = results(:, 2 * N + 2:3 * N + 1);
 
     velocity = momentum ./ density;
-    internal_energy = energy - 0.5 * momentum .* velocity;  % e = E - 0.5*rho*v^2 [J/m^3]
-    temperature = internal_energy ./ (density * Air.C_V);   % T = e/(rho*Cv) [K]
-    pressure = density * Air.R .* temperature;              % p = rho*R*T [Pa]
+    internal_energy = energy - 0.5 * momentum .* velocity; % e = E - 0.5*rho*v^2 [J/m^3]
+    temperature = internal_energy ./ (density * Air.C_V); % T = e/(rho*Cv) [K]
+    pressure = density * Air.R .* temperature; % p = rho*R*T [Pa]
 
     [X, T] = meshgrid(centroids_x, t_vec);
 
-    vars   = {density, velocity, momentum, temperature, pressure, energy};
+    vars = {density, velocity, momentum, temperature, pressure, energy};
     titles = {'Density \rho [kg/m^3]', 'Velocity v [m/s]', ...
-              'Momentum \rho v [kg/(m^2\cdots)]', 'Temperature T [K]', ...
-              'Pressure p [Pa]', 'Total energy E [J/m^3]'};
+                  'Momentum \rho v [kg/(m^2\cdots)]', 'Temperature T [K]', ...
+                  'Pressure p [Pa]', 'Total energy E [J/m^3]'};
 
     figure;
 

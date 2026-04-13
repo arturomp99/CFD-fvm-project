@@ -41,7 +41,7 @@ centroids_x = reshape([cells.centroid], 2, [])';
 centroids_x = centroids_x(:, 1);
 w0 = initial_conditions(centroids_x);
 
-problem = @(state, time) fvm_1D_euler(state, cells);
+problem = @(state, time) fvm_1D_euler(state, cells, time);
 
 propagator = Config.PROPAGATOR;
 

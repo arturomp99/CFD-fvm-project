@@ -30,20 +30,27 @@ function state = sod(pressure, density, velocity, shock_pos, cells_centroid_x)
 
     momentum.left = density.left * velocity.left;
     momentum.right = density.right * velocity.right;
+
     energy.left = get_internal_energy(density.left, pressure.left, velocity.left);
     energy.right = get_internal_energy(density.right, pressure.right, velocity.right);
 
     num_cells = size(cells_centroid_x, 1);
+
     density_vec = zeros(num_cells, 1);
     momentum_vec = zeros(num_cells, 1);
     energy_vec = zeros(num_cells, 1);
 
-    density_vec(cells_centroid_x < shock_pos) = density.left;
-    density_vec(cells_centroid_x > shock_pos) = density.right;
-    momentum_vec(cells_centroid_x < shock_pos) = momentum.left;
-    momentum_vec(cells_centroid_x > shock_pos) = momentum.right;
-    energy_vec(cells_centroid_x < shock_pos) = energy.left;
-    energy_vec(cells_centroid_x > shock_pos) = energy.right;
+    left_mask = (cells_centroid_x <= shock_pos);
+    right_mask = (cells_centroid_x > shock_pos);
+
+    density_vec(left_mask) = density.left;
+    density_vec(right_mask) = density.right;
+
+    momentum_vec(left_mask) = momentum.left;
+    momentum_vec(right_mask) = momentum.right;
+
+    energy_vec(left_mask) = energy.left;
+    energy_vec(right_mask) = energy.right;
 
     state = [density_vec; momentum_vec; energy_vec];
 end

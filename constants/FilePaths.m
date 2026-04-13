@@ -8,14 +8,13 @@ classdef FilePaths
                                    'Meshes/bc_left_1D_258nodes.dat', ...
                                    'Meshes/bc_right_1D_258nodes.dat', ...
                                    'Meshes/bc_top_1D_258nodes.dat', ...
-                                   'Meshes/bc_whole_contour_1D_258nodes.dat', ...
+                                   'Meshes/bc_whole_contour_1D_258nodes.dat' ...
                                };
 
-        % Files processing
         SKIP_NODES_FILE_HEADER = false;
-        SKIP_NODES_FILE_FOOTER = true;
+        SKIP_NODES_FILE_FOOTER = false;
         SKIP_CELLS_FILE_HEADER = false;
-        SKIP_CELLS_FILE_FOOTER = true;
+        SKIP_CELLS_FILE_FOOTER = false;
     end
 
 end

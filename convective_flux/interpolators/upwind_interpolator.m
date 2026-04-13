@@ -1,74 +1,128 @@
 function [A, b] = upwind_interpolator(state, cells)
-    %UPWIND_INTERPOLATOR Assembles the convective flux matrix using first-order upwind scheme.
-    %   [A, b] = UPWIND_INTERPOLATOR(state, cells) builds the spatial operator
-    %   matrices for convective transport by applying the upwind (donor-cell)
-    %   scheme: the flux at each face is taken from the upwind cell determined
-    %   by the local flow velocity.
+    %UPWIND_INTERPOLATOR
+    %   First-order finite-volume discretisation for 1D Euler
+    %   using Rusanov (local Lax-Friedrichs) numerical flux.
     %
-    %   The state vector is ordered as [density (N); momentum (N); energy (N)].
-    %   The resulting A matrix has a block-diagonal structure with three identical
-    %   N x N blocks, one for each conserved variable.
-    %
-    %   Inputs:
-    %   -------
-    %   state : column vector (3*N x 1)
-    %     Concatenated state vector [density; momentum; total energy].
-    %   cells : struct array (1 x N)
-    %     Mesh cells with 'connectivity' and 'centroid' fields.
-    %
-    %   Outputs:
-    %   --------
-    %   A : matrix (3N x 3N)
-    %     Upwind convective operator matrix.
-    %   b : column vector (3N x 1)
-    %     Zero vector (no source terms added here).
+    %   Returns:
+    %       d(state)/dt = A*state + b
+    %   Here A = 0 and b contains the nonlinear spatial residual.
 
     num_cells = length(cells);
+    gamma = Config.GAMMA;
 
-    [A, b] = initialize_A_b(num_cells);
+    A = sparse(3 * num_cells, 3 * num_cells);
+    b = zeros(3 * num_cells, 1);
 
-    for cell_index = 1:num_cells
-        cell = cells(cell_index);
-        neighbours = get_neighour_cells(cell, cells);
+    rho  = state(1:num_cells);
+    rhou = state(num_cells + 1 : 2 * num_cells);
+    E    = state(2 * num_cells + 1 : 3 * num_cells);
 
-        cell_velocity = get_cell_velocity(cell_index, num_cells, state);
-
-        % For boundary cells the missing neighbour has zero-gradient velocity
-        % (same as current cell), giving zero net flux at that boundary face.
-        if ~isempty(neighbours.left)
-            left_neighbour_velocity = get_cell_velocity(neighbours.left, num_cells, state);
-        else
-            left_neighbour_velocity = cell_velocity;
-        end
-        if ~isempty(neighbours.right)
-            right_neighbour_velocity = get_cell_velocity(neighbours.right, num_cells, state);
-        else
-            right_neighbour_velocity = cell_velocity;
-        end
-
-        [left_face_velocity, right_face_velocity] = ...
-            get_velocity_at_faces(cell_velocity, left_neighbour_velocity, right_neighbour_velocity);
-
-        if (cell_velocity > 0)
-            A(cell_index, cell_index) = right_face_velocity;
-            A(num_cells + cell_index, num_cells + cell_index) = right_face_velocity;
-            A(2 * num_cells + cell_index, 2 * num_cells + cell_index) = right_face_velocity;
-            if ~isempty(neighbours.left)
-                A(cell_index, neighbours.left) = -left_face_velocity;
-                A(num_cells + cell_index, num_cells + neighbours.left) = -left_face_velocity;
-                A(2 * num_cells + cell_index, 2 * num_cells + neighbours.left) = -left_face_velocity;
-            end
-        else
-            if ~isempty(neighbours.right)
-                A(cell_index, neighbours.right) = right_face_velocity;
-                A(num_cells + cell_index, num_cells + neighbours.right) = right_face_velocity;
-                A(2 * num_cells + cell_index, 2 * num_cells + neighbours.right) = right_face_velocity;
-            end
-            A(cell_index, cell_index) = -left_face_velocity;
-            A(num_cells + cell_index, num_cells + cell_index) = -left_face_velocity;
-            A(2 * num_cells + cell_index, 2 * num_cells + cell_index) = -left_face_velocity;
-        end
-
+    x = zeros(num_cells, 1);
+    for i = 1:num_cells
+        x(i) = cells(i).centroid(1);
     end
 
+    rhs_rho  = zeros(num_cells, 1);
+    rhs_rhou = zeros(num_cells, 1);
+    rhs_E    = zeros(num_cells, 1);
+
+    for i = 1:num_cells
+        neighbours = get_neighour_cells(cells(i), cells);
+
+        Ui = [rho(i); rhou(i); E(i)];
+
+        % Left face
+        if isempty(neighbours.left)
+            UL = Ui;  % transmissive BC
+            xL = x(i) - 0.5 * local_dx(i, x, cells);
+        else
+            jL = neighbours.left;
+            UL = [rho(jL); rhou(jL); E(jL)];
+            xL = 0.5 * (x(jL) + x(i));
+        end
+
+        UR_left = Ui;
+        F_left = rusanov_flux(UL, UR_left, gamma);
+
+        % Right face
+        if isempty(neighbours.right)
+            UR = Ui;  % transmissive BC
+            xR = x(i) + 0.5 * local_dx(i, x, cells);
+        else
+            jR = neighbours.right;
+            UR = [rho(jR); rhou(jR); E(jR)];
+            xR = 0.5 * (x(i) + x(jR));
+        end
+
+        UL_right = Ui;
+        F_right = rusanov_flux(UL_right, UR, gamma);
+
+        dx_i = xR - xL;
+
+        rhs_i = -(F_right - F_left) / dx_i;
+
+        rhs_rho(i)  = rhs_i(1);
+        rhs_rhou(i) = rhs_i(2);
+        rhs_E(i)    = rhs_i(3);
+    end
+
+    b = [rhs_rho; rhs_rhou; rhs_E];
+end
+
+
+function dx = local_dx(i, x, cells)
+    neighbours = get_neighour_cells(cells(i), cells);
+
+    if ~isempty(neighbours.left) && ~isempty(neighbours.right)
+        dx = 0.5 * (x(neighbours.right) - x(neighbours.left));
+    elseif ~isempty(neighbours.right)
+        dx = x(neighbours.right) - x(i);
+    elseif ~isempty(neighbours.left)
+        dx = x(i) - x(neighbours.left);
+    else
+        dx = 1.0;
+    end
+
+    dx = max(dx, 1e-12);
+end
+
+
+function F = rusanov_flux(UL, UR, gamma)
+    FL = euler_flux(UL, gamma);
+    FR = euler_flux(UR, gamma);
+
+    alpha = max(max_wave_speed(UL, gamma), max_wave_speed(UR, gamma));
+
+    F = 0.5 * (FL + FR) - 0.5 * alpha * (UR - UL);
+end
+
+
+function F = euler_flux(U, gamma)
+    rho  = max(U(1), 1e-12);
+    rhou = U(2);
+    E    = U(3);
+
+    u = rhou / rho;
+    p = (gamma - 1) * (E - 0.5 * rhou^2 / rho);
+    p = max(p, 1e-12);
+
+    F = [ ...
+        rhou; ...
+        rhou * u + p; ...
+        u * (E + p) ...
+    ];
+end
+
+
+function a = max_wave_speed(U, gamma)
+    rho  = max(U(1), 1e-12);
+    rhou = U(2);
+    E    = U(3);
+
+    u = rhou / rho;
+    p = (gamma - 1) * (E - 0.5 * rhou^2 / rho);
+    p = max(p, 1e-12);
+
+    c = sqrt(gamma * p / rho);
+    a = abs(u) + c;
 end

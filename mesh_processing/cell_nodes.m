@@ -1,30 +1,29 @@
 function nodes = cell_nodes(cell_nodes_indices, all_nodes_data)
-    %CELL_NODES Gathers the coordinate array for a cell from global node data.
-    %   nodes = CELL_NODES(cell_nodes_indices, all_nodes_data) collects the
-    %   coordinates of each node listed in cell_nodes_indices and returns them
-    %   as an N x 2 matrix.
+    %CELL_NODES Return node coordinates [x,y] for one cell.
     %
-    %   Inputs:
-    %   -------
-    %   cell_nodes_indices : row vector of integers
-    %     1-based indices of the nodes that form this cell.
-    %   all_nodes_data : cell array
-    %     Global node coordinate data loaded from the mesh nodes file.
-    %     all_nodes_data{i} is a 1x2 vector [x, y] for node i. [m]
-    %
-    %   Outputs:
-    %   --------
-    %   nodes : N x 2 array
-    %     Coordinates [x, y] of the cell nodes in traversal order. [m]
+    %   nodes = CELL_NODES(cell_nodes_indices, all_nodes_data)
+    %   returns an N-by-2 array with node coordinates.
 
-    nodes = [];
+    num_nodes = length(cell_nodes_indices);
+    nodes = zeros(num_nodes, 2);
 
-    for node_index = cell_nodes_indices
+    for k = 1:num_nodes
+        node_index = cell_nodes_indices(k);
+
+        if node_index < 1 || node_index > length(all_nodes_data)
+            error('Node index %d exceeds loaded nodes (%d).', ...
+                node_index, length(all_nodes_data));
+        end
+
         node_coordinates = all_nodes_data{node_index};
-        nodes = [
-                 nodes;
-                 node_coordinates
-                 ];
-    end
 
+        % Keep only finite numeric values
+        node_coordinates = node_coordinates(isfinite(node_coordinates));
+
+        if numel(node_coordinates) < 2
+            error('Node %d does not contain at least two coordinates.', node_index);
+        end
+
+        nodes(k, :) = node_coordinates(1:2);
+    end
 end

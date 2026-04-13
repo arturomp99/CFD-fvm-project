@@ -31,16 +31,32 @@ function [nodes_data, cells_data, bcs_data] = mesh_data_loader( ...
         FilePaths.SKIP_NODES_FILE_HEADER, ...
         FilePaths.SKIP_NODES_FILE_FOOTER ...
     );
-    cells_data = data_loader(cells_file, ...
+
+    cells_data = data_loader( ...
+        cells_file, ...
         "\t", ...
         FilePaths.SKIP_CELLS_FILE_HEADER, ...
         FilePaths.SKIP_CELLS_FILE_FOOTER ...
     );
-    bcs_data = {1, length(bc_files)};
+
+    bcs_data = cell(length(bc_files), 1);
 
     for i = 1:length(bc_files)
-        current_bc_data = data_loader(bc_files{i}, "\t", 0, 1);
-        bcs_data{i} = current_bc_data{1};
+        % For these BC files, do not skip the footer by default
+        current_bc_data = data_loader(bc_files{i}, "\t", 0, 0);
+
+        if isempty(current_bc_data)
+            error('Boundary condition file %s is empty after loading.', bc_files{i});
+        end
+
+        % If a BC file has several lines, concatenate all node indices
+        bc_nodes = [];
+
+        for k = 1:length(current_bc_data)
+            bc_nodes = [bc_nodes, current_bc_data{k}]; %#ok<AGROW>
+        end
+
+        bcs_data{i} = unique(bc_nodes, 'stable');
     end
 
 end

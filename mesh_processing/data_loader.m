@@ -1,47 +1,37 @@
-function [output] = data_loader( ...
-        filename, ...
-        separator, ...
-        skipheader, ...
-        skipfooter ...
-    )
-    %   Loads numeric data from a tabular data file.
-    %   The data inside the file is saved in tabular format,
-    %   using the same field delimiter in each line. Each line does not need to
-    %   have the same number of fields. The data are saved inside a cell array.
-    %
-    %   Inputs
-    %   ------
-    %   filename : string
-    %     Name of the file with all the data.
-    %   separator : string
-    %     Field separator string. Typical strings are ',' for comma-separated
-    %     values, '\t' for tab-separated values...
-    %   skipheader : int
-    %     Number of lines at the beginning of the file that do not contain
-    %     numerical data to be extracted.
-    %   skipfooter : int
-    %     Number of lines at the end of the file that do not contain numericla
-    %     data to be extracted.
-    %
-    %   Outputs
-    %   -------
-    %   output : cell(double)
-    %     Cell array with all the data extracted. Each component of the array
-    %     corresponds to a line of the data inside the file, converted to a
-    %     one-dimensional array of numbers.
+function output = data_loader(filename, separator, skipheader, skipfooter)
+    %DATA_LOADER Load numeric rows from a delimited text file.
 
     raw_data = readlines(filename);
-    output = {length(raw_data) - skipheader - skipfooter};
 
-    for i = 1:(length(raw_data) - skipheader - skipfooter)
-        row_strdata = strsplit(raw_data{skipheader + i}, separator);
-        row_numdata = zeros(1, length(row_strdata));
+    % Convert to string array and remove empty lines
+    raw_data = string(raw_data);
+    raw_data = raw_data(strlength(strtrim(raw_data)) > 0);
 
-        for j = 1:(length(row_strdata))
-            row_numdata(j) = str2double(row_strdata{j});
+    n_rows = length(raw_data) - skipheader - skipfooter;
+
+    if n_rows < 0
+        error('Invalid skipheader/skipfooter for file: %s', filename);
+    end
+
+    output = cell(n_rows, 1);
+
+    for i = 1:n_rows
+        line = strtrim(raw_data(skipheader + i));
+
+        % Split by separator and remove empty tokens
+        row_strdata = strsplit(line, separator);
+        row_strdata = row_strdata(~cellfun('isempty', row_strdata));
+
+        row_numdata = zeros(1, numel(row_strdata));
+
+        for j = 1:numel(row_strdata)
+            value = str2double(row_strdata{j});
+            if isnan(value)
+                error('Non-numeric value in file %s, line %d.', filename, skipheader + i);
+            end
+            row_numdata(j) = value;
         end
 
         output{i} = row_numdata;
     end
-
 end

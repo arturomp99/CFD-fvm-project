@@ -22,6 +22,13 @@ function [A, b] = fvm_1D_euler( ...
     %   b : column vector (3N x 1)
     %     Independent terms vector (source / boundary contributions).
 
-    [A, b] = convective_flux(state, cells);
+    [A_flux, b_flux] = convective_flux(state, cells);
+
+    centroids_x = reshape([cells.centroid], 2, [])';
+    centroids_x = centroids_x(:, 1);
+    [A_source, b_source] = Config.SOURCE_TERMS(state, centroids_x, 0);
+
+    A = A_flux + A_source;
+    b = b_flux + b_source;
 
 end

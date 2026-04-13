@@ -10,6 +10,7 @@ addpath('stopping_criteria')
 addpath('timestep_control')
 addpath('propagators')
 addpath('results_manager')
+addpath('sources')
 
 %% Mesh processing
 

@@ -1,4 +1,4 @@
-function [A, b] = point_velocity_source(centroids_x, source_position, source_strength)
+function source = point_velocity_source(state, centroids_x, t, source_position, source_strength)
     %POINT_VELOCITY_SOURCE Applies a localised momentum forcing at a given x position.
     %   source = POINT_VELOCITY_SOURCE(state, centroids_x, t, source_position, source_strength)
     %   returns a source term vector that adds momentum (a body force) to the
@@ -23,11 +23,12 @@ function [A, b] = point_velocity_source(centroids_x, source_position, source_str
     %     is non-zero.
 
     num_cells = length(centroids_x);
-    [A, b] = initialize_A_b(num_cells);
+    source = zeros(3 * num_cells, 1);
 
     % Find the cell closest to the requested source position
     [~, source_cell] = min(abs(centroids_x - source_position));
 
     % Add the forcing to the momentum equation of that cell
-    b(num_cells + source_cell) = source_strength;
+    source(num_cells + source_cell) = source_strength;
+
 end

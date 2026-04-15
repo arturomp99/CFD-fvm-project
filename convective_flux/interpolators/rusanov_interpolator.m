@@ -43,7 +43,7 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
     rho_sorted = rho(perm);
     rhou_sorted = rhou(perm);
     E_sorted = E(perm);
-    
+
     % Map boundary info to sorted order
     cells_sorted = cells(perm);
 
@@ -57,7 +57,11 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
         % Left state at left face
         if i == 1
             % Apply boundary condition
-            [bc_type, bc_params] = get_boundary_type(cells_sorted(i), 'left', boundary_info);
+            [bc_type, bc_params] = get_boundary_type( ...
+                cells_sorted(i), ...
+                'left', ...
+                boundary_info ...
+            );
             UL = apply_bc_state(Ui, bc_type, -1, bc_params);
             xL = x_sorted(i) - 0.5 * (x_sorted(i + 1) - x_sorted(i));
         else

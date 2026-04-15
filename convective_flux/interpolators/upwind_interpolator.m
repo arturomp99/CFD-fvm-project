@@ -1,11 +1,25 @@
-function [A, b] = upwind_interpolator(state, cells)
+function [A, b] = upwind_interpolator(state, cells, boundary_info)
     %UPWIND_INTERPOLATOR
     %   First-order finite-volume discretisation for 1D Euler
     %   using Rusanov (local Lax-Friedrichs) numerical flux.
     %
+    %   Inputs:
+    %   -------
+    %   state : column vector (3*N x 1)
+    %     State vector [density; momentum; total energy].
+    %   cells : struct array (1 x N)
+    %     Mesh cells with geometry and boundary information.
+    %   boundary_info : struct
+    %     Structure with .boundary_types cell array specifying 'open' or 'wall'
+    %     for each boundary surface.
+    %
     %   Returns:
     %       d(state)/dt = A*state + b
     %   Here A = 0 and b contains the nonlinear spatial residual.
+
+    if nargin < 3
+        boundary_info = struct('boundary_types', {{}});
+    end
 
     num_cells = length(cells);
     gamma = Air.GAMMA;
@@ -34,7 +48,9 @@ function [A, b] = upwind_interpolator(state, cells)
 
         % Left face
         if isempty(neighbours.left)
-            UL = Ui; % transmissive BC
+            % Apply boundary condition
+            [bc_type, bc_params] = get_boundary_type(cells(i), 'left', boundary_info);
+            UL = apply_bc_state(Ui, bc_type, -1, bc_params);
             xL = x(i) - 0.5 * local_dx(i, x, cells);
         else
             jL = neighbours.left;
@@ -47,7 +63,9 @@ function [A, b] = upwind_interpolator(state, cells)
 
         % Right face
         if isempty(neighbours.right)
-            UR = Ui; % transmissive BC
+            % Apply boundary condition
+            [bc_type, bc_params] = get_boundary_type(cells(i), 'right', boundary_info);
+            UR = apply_bc_state(Ui, bc_type, +1, bc_params);
             xR = x(i) + 0.5 * local_dx(i, x, cells);
         else
             jR = neighbours.right;

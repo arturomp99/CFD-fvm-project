@@ -18,18 +18,26 @@ nodes_file = FilePaths.NODES;
 cells_file = FilePaths.CELLS;
 bc_files = FilePaths.BOUNDARY_CONDITIONS;
 
-cells = mesh_processor(nodes_file, cells_file, bc_files);
+[cells, boundary_info] = mesh_processor(nodes_file, cells_file, bc_files);
 
 % cells is a (1 x N) struct array, where N is the number of mesh cells.
 % Each element represents one cell and has the following fields:
-%   .nodes        - (V x 2) array of node coordinates [x, y] for the V vertices of the cell. [m]
-%   .faces        - (V x 2 x 2) array of face definitions; faces(i,1,:) and faces(i,2,:)
-%                   are the [x,y] coordinates of the two endpoints of face i.
-%   .volume       - scalar area of the cell (polyarea in 2D). [m^2]
-%   .centroid     - (1 x 2) vector [cx, cy] of the geometric centroid. [m]
-%   .area         - (1 x V) vector of edge lengths (face areas in 2D). [m]
-%   .normals      - (V x 2) array of outward unit normal vectors for each face.
-%   .connectivity - row vector of indices of the neighbouring cells that share a face.
+%   .nodes              - (V x 2) array of node coordinates [x, y] for the V vertices of the cell. [m]
+%   .faces              - (V x 2 x 2) array of face definitions; faces(i,1,:) and faces(i,2,:)
+%                         are the [x,y] coordinates of the two endpoints of face i.
+%   .volume             - scalar area of the cell (polyarea in 2D). [m^2]
+%   .centroid           - (1 x 2) vector [cx, cy] of the geometric centroid. [m]
+%   .area               - (1 x V) vector of edge lengths (face areas in 2D). [m]
+%   .normals            - (V x 2) array of outward unit normal vectors for each face.
+%   .connectivity       - row vector of indices of the neighbouring cells that share a face.
+%   .boundary_faces     - indices of faces that lie on a boundary surface.
+%   .boundary_surface_ids - which boundary surface each boundary face belongs to.
+%
+% boundary_info contains:
+%   .surface_names        - cell array of boundary surface identifiers
+%   .surface_nodes        - cell array of node indices for each surface
+%   .boundary_types       - cell array of BC types ('open', 'wall', or 'velocity') for each surface
+%   .boundary_velocities  - array of velocity values [m/s] for 'velocity' BCs (NaN for others)
 
 %% Problem configuration
 % se concatenarán 3 vectores uno detrás de otro
@@ -42,7 +50,7 @@ centroids_x = reshape([cells.centroid], 2, [])';
 centroids_x = centroids_x(:, 1);
 w0 = initial_conditions(centroids_x);
 
-problem = @(state, time) fvm_1D_euler(state, cells);
+problem = @(state, time) fvm_1D_euler(state, cells, boundary_info);
 
 propagator = Config.PROPAGATOR;
 

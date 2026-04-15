@@ -10,21 +10,18 @@ classdef Config
         % 'wall'     - solid wall boundary (reflective, zero normal velocity)
         % 'velocity' - constant velocity boundary (requires BOUNDARY_VELOCITIES)
         %
-        % Configure the type for each boundary surface defined in FilePaths.
-        % The order must match FilePaths.BOUNDARY_CONDITIONS.
-        % Example: {'wall', 'open', 'open', 'wall', 'wall'}
+        % Configure per boundary surface. Order matches FilePaths.BOUNDARY_CONDITIONS.
         BOUNDARY_TYPES = { ...
-                              'open', ... % bc_bottom
-                              'velocity', ... % bc_left (solid wall)
-                              'open', ... % bc_right (solid wall)
-                              'open', ... % bc_top
-                              'open' ... % bc_whole_contour
+                              'open', ...     % 1: bc_bottom
+                              'velocity', ... % 2: bc_left
+                              'open', ...     % 3: bc_right
+                              'open', ...     % 4: bc_top
+                              'open' ...      % 5: bc_whole_contour
                           };
 
         % Velocity values for 'velocity' boundary conditions [m/s]
         % Only used when the corresponding BOUNDARY_TYPES entry is 'velocity'.
         % Set to NaN for surfaces that don't use velocity BC.
-        % Example: [NaN, 100.0, -50.0, NaN, NaN] for inlet at 100 m/s on surface 2
         BOUNDARY_VELOCITIES = [NaN, 100.0, NaN, NaN, NaN];
 
         % Problem definition

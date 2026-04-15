@@ -48,8 +48,8 @@ function [A, b] = upwind_interpolator(state, cells, boundary_info)
 
         % Left face
         if isempty(neighbours.left)
-            % Apply boundary condition
-            [bc_type, bc_params] = get_boundary_type(cells(i), 'left', boundary_info);
+            % Apply boundary condition by checking which BC surface this cell's left face belongs to
+            [bc_type, bc_params] = get_cell_boundary_condition(cells(i), 'left', boundary_info);
             UL = apply_bc_state(Ui, bc_type, -1, bc_params);
             xL = x(i) - 0.5 * local_dx(i, x, cells);
         else
@@ -63,8 +63,8 @@ function [A, b] = upwind_interpolator(state, cells, boundary_info)
 
         % Right face
         if isempty(neighbours.right)
-            % Apply boundary condition
-            [bc_type, bc_params] = get_boundary_type(cells(i), 'right', boundary_info);
+            % Apply boundary condition by checking which BC surface this cell's right face belongs to
+            [bc_type, bc_params] = get_cell_boundary_condition(cells(i), 'right', boundary_info);
             UR = apply_bc_state(Ui, bc_type, +1, bc_params);
             xR = x(i) + 0.5 * local_dx(i, x, cells);
         else

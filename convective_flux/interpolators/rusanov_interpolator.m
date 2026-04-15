@@ -56,12 +56,8 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
 
         % Left state at left face
         if i == 1
-            % Apply boundary condition
-            [bc_type, bc_params] = get_boundary_type( ...
-                cells_sorted(i), ...
-                'left', ...
-                boundary_info ...
-            );
+            % Apply boundary condition by checking which BC surface this cell's left face belongs to
+            [bc_type, bc_params] = get_cell_boundary_condition(cells_sorted(i), 'left', boundary_info);
             UL = apply_bc_state(Ui, bc_type, -1, bc_params);
             xL = x_sorted(i) - 0.5 * (x_sorted(i + 1) - x_sorted(i));
         else
@@ -71,8 +67,8 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
 
         % Right state at right face
         if i == num_cells
-            % Apply boundary condition
-            [bc_type, bc_params] = get_boundary_type(cells_sorted(i), 'right', boundary_info);
+            % Apply boundary condition by checking which BC surface this cell's right face belongs to
+            [bc_type, bc_params] = get_cell_boundary_condition(cells_sorted(i), 'right', boundary_info);
             UR = apply_bc_state(Ui, bc_type, +1, bc_params);
             xR = x_sorted(i) + 0.5 * (x_sorted(i) - x_sorted(i - 1));
         else

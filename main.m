@@ -38,6 +38,10 @@ bc_files = FilePaths.BOUNDARY_CONDITIONS;
 %   .surface_nodes        - cell array of node indices for each surface
 %   .boundary_types       - cell array of BC types ('open', 'wall', or 'velocity') for each surface
 %   .boundary_velocities  - array of velocity values [m/s] for 'velocity' BCs (NaN for others)
+%
+% Each cell stores .boundary_surface_ids which maps to the indices in boundary_info.
+% The interpolators use get_cell_boundary_condition() to find the correct BC
+% for each boundary face by checking the cell's nodes against the boundary surfaces.
 
 %% Problem configuration
 % se concatenarán 3 vectores uno detrás de otro

@@ -20,9 +20,9 @@ function state = uniform(pressure, density, velocity, cells_centroid_x)
     energy = get_internal_energy(density, pressure, velocity);
 
     num_cells = size(cells_centroid_x, 1);
-    density_vec  = ones(num_cells, 1) * density;
+    density_vec = ones(num_cells, 1) * density;
     momentum_vec = ones(num_cells, 1) * momentum;
-    energy_vec   = ones(num_cells, 1) * energy;
+    energy_vec = ones(num_cells, 1) * energy;
 
     state = [density_vec; momentum_vec; energy_vec];
 end

@@ -26,12 +26,15 @@ function output = data_loader(filename, separator, skipheader, skipfooter)
 
         for j = 1:numel(row_strdata)
             value = str2double(row_strdata{j});
+
             if isnan(value)
                 error('Non-numeric value in file %s, line %d.', filename, skipheader + i);
             end
+
             row_numdata(j) = value;
         end
 
         output{i} = row_numdata;
     end
+
 end

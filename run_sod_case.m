@@ -20,7 +20,7 @@ function out = run_sod_case(nnodes, dt_value)
     num_cells = length(cells);
 
     centroids = reshape([cells.centroid], 2, [])';
-    centroids_x = centroids(:,1);
+    centroids_x = centroids(:, 1);
 
     % Initial condition
     w0 = Config.INITIAL_CONDITIONS(centroids_x);
@@ -47,16 +47,16 @@ function out = run_sod_case(nnodes, dt_value)
     runtime = toc;
 
     % Extract primitive variables at final sampled time
-    t_vec = results(:,1);
+    t_vec = results(:, 1);
     [~, idx_t] = min(abs(t_vec - Config.T_END));
     t_plot = t_vec(idx_t);
 
-    rho  = results(idx_t, 2 : num_cells + 1).';
-    rhou = results(idx_t, num_cells + 2 : 2 * num_cells + 1).';
-    E    = results(idx_t, 2 * num_cells + 2 : 3 * num_cells + 1).';
+    rho = results(idx_t, 2:num_cells + 1).';
+    rhou = results(idx_t, num_cells + 2:2 * num_cells + 1).';
+    E = results(idx_t, 2 * num_cells + 2:3 * num_cells + 1).';
 
     u = rhou ./ rho;
-    p = (Config.GAMMA - 1) .* (E - 0.5 .* (rhou.^2) ./ rho);
+    p = (Air.GAMMA - 1) .* (E - 0.5 .* (rhou .^ 2) ./ rho);
 
     [x_sorted, idx] = sort(centroids_x);
 

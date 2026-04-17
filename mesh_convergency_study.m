@@ -1,12 +1,12 @@
 clc; clear; close all;
 
-addpath('convergency_study'); 
+addpath('convergency_study');
 
 % =========================================================
 % SETTINGS
 % =========================================================
 mesh_list = [66, 130, 258];
-dt_value = 1e-5;   % keep same dt for all meshes to reduce temporal contamination
+dt_value = 1e-5; % keep same dt for all meshes to reduce temporal contamination
 
 % =========================================================
 % RUN CASES
@@ -22,39 +22,39 @@ for k = 1:numel(mesh_list)
     fprintf('  t_final  = %.6f s\n', cases{k}.t);
 end
 
-coarse = cases{1};   % 66 nodes
-medium = cases{2};   % 130 nodes
-fine   = cases{3};   % 258 nodes
+coarse = cases{1}; % 66 nodes
+medium = cases{2}; % 130 nodes
+fine = cases{3}; % 258 nodes
 
 % =========================================================
 % PLOTS: SUPERPOSED SOLUTIONS
 % =========================================================
 figure;
 
-subplot(3,1,1);
+subplot(3, 1, 1);
 stairs(coarse.x, coarse.rho, 'LineWidth', 1.5); hold on;
 stairs(medium.x, medium.rho, 'LineWidth', 1.5);
-stairs(fine.x,   fine.rho,   'LineWidth', 1.5);
+stairs(fine.x, fine.rho, 'LineWidth', 1.5);
 grid on;
 xlabel('x [m]');
 ylabel('\rho [kg/m^3]');
 title(sprintf('Density comparison at t \\approx %.4f s', fine.t));
 legend('66 nodes', '130 nodes', '258 nodes', 'Location', 'best');
 
-subplot(3,1,2);
+subplot(3, 1, 2);
 stairs(coarse.x, coarse.u, 'LineWidth', 1.5); hold on;
 stairs(medium.x, medium.u, 'LineWidth', 1.5);
-stairs(fine.x,   fine.u,   'LineWidth', 1.5);
+stairs(fine.x, fine.u, 'LineWidth', 1.5);
 grid on;
 xlabel('x [m]');
 ylabel('u [m/s]');
 title('Velocity comparison');
 legend('66 nodes', '130 nodes', '258 nodes', 'Location', 'best');
 
-subplot(3,1,3);
+subplot(3, 1, 3);
 stairs(coarse.x, coarse.p, 'LineWidth', 1.5); hold on;
 stairs(medium.x, medium.p, 'LineWidth', 1.5);
-stairs(fine.x,   fine.p,   'LineWidth', 1.5);
+stairs(fine.x, fine.p, 'LineWidth', 1.5);
 grid on;
 xlabel('x [m]');
 ylabel('p [Pa]');
@@ -82,7 +82,7 @@ cost_table = table( ...
     nsteps(:), ...
     runtimes(:), ...
     work_units(:), ...
-    'VariableNames', {'NodesFileTag','Ncells','EstimatedSteps','Runtime_s','CellUpdates'} ...
+    'VariableNames', {'NodesFileTag', 'Ncells', 'EstimatedSteps', 'Runtime_s', 'CellUpdates'} ...
 );
 
 disp('=== COST TABLE ===');
@@ -94,8 +94,8 @@ disp(cost_table);
 fprintf('\n=== RICHARDSON / GCI ANALYSIS ===\n');
 
 rho_metrics = richardson_gci_three_grids(coarse.x, coarse.rho, medium.x, medium.rho, fine.x, fine.rho);
-u_metrics   = richardson_gci_three_grids(coarse.x, coarse.u,   medium.x, medium.u,   fine.x, fine.u);
-p_metrics   = richardson_gci_three_grids(coarse.x, coarse.p,   medium.x, medium.p,   fine.x, fine.p);
+u_metrics = richardson_gci_three_grids(coarse.x, coarse.u, medium.x, medium.u, fine.x, fine.u);
+p_metrics = richardson_gci_three_grids(coarse.x, coarse.p, medium.x, medium.p, fine.x, fine.p);
 
 metrics_table = table( ...
     ["density"; "velocity"; "pressure"], ...
@@ -105,7 +105,7 @@ metrics_table = table( ...
     [rho_metrics.GCI32; u_metrics.GCI32; p_metrics.GCI32], ...
     [rho_metrics.GCI21; u_metrics.GCI21; p_metrics.GCI21], ...
     [rho_metrics.asymptotic_ratio; u_metrics.asymptotic_ratio; p_metrics.asymptotic_ratio], ...
-    'VariableNames', {'Variable','ObservedOrder_p','E32','E21','GCI32_percent','GCI21_percent','AsymptoticRatio'} ...
+    'VariableNames', {'Variable', 'ObservedOrder_p', 'E32', 'E21', 'GCI32_percent', 'GCI21_percent', 'AsymptoticRatio'} ...
 );
 
 disp(metrics_table);
@@ -120,4 +120,4 @@ grid on;
 xlabel('x [m]');
 ylabel('\rho [kg/m^3]');
 title('Density: coarse / medium / fine / Richardson extrapolated');
-legend('coarse','medium->coarse','fine->coarse','Richardson extrapolated','Location','best');
+legend('coarse', 'medium->coarse', 'fine->coarse', 'Richardson extrapolated', 'Location', 'best');

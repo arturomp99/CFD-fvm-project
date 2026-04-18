@@ -29,19 +29,19 @@ function out = richardson_gci_three_grids(x3, phi3, x2, phi2, x1, phi1)
     p = log(E32 / E21) / log(r);
 
     % Richardson extrapolation on coarse grid
-    phi_ext = phi1_on_3 + (phi1_on_3 - phi2_on_3) / (r^p - 1);
+    phi_ext = phi1_on_3 + (phi1_on_3 - phi2_on_3) / (r ^ p - 1);
 
     % Relative errors
     eps32 = E32 / max(mean(abs(phi2_on_3)), 1e-12);
     eps21 = E21 / max(mean(abs(phi1_on_3)), 1e-12);
 
-    Fs = 1.25;   % standard safety factor for 3+ grids
+    Fs = 1.25; % standard safety factor for 3+ grids
 
-    GCI32 = 100 * Fs * eps32 / (r^p - 1);
-    GCI21 = 100 * Fs * eps21 / (r^p - 1);
+    GCI32 = 100 * Fs * eps32 / (r ^ p - 1);
+    GCI21 = 100 * Fs * eps21 / (r ^ p - 1);
 
     % Asymptotic range check
-    asymptotic_ratio = GCI32 / (r^p * GCI21);
+    asymptotic_ratio = GCI32 / (r ^ p * GCI21);
 
     out.p = p;
     out.E32 = E32;

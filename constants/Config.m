@@ -49,11 +49,11 @@ classdef Config
         % Solver
         IS_SOURCE_IMPLICIT = false;
 
-        CONVECTIVE_FLUX_INTERPOLATOR = @(state, cells, boundary_info) ... % los interpoladores estan definidos en convective_flux\interpolators
-            rusanov_interpolator(state, cells, boundary_info);
+        CONVECTIVE_FLUX_INTERPOLATOR = @(state, cells) ... % los interpoladores estan definidos en convective_flux\interpolators
+            hllc_interpolator(state, cells);
 
         PROPAGATOR = @(state, time, d_time, problem) ...
-            fw_euler(state, time, d_time, problem);
+            bw_euler(state, time, d_time, problem);
 
         TIMESTEP_CALCULATOR = @(w, t) ...
             constant_dt(w, t, 5e-5);

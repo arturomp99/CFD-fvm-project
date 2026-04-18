@@ -14,11 +14,11 @@ num_cells = length(cells);
 centroids = reshape([cells.centroid], 2, [])';
 
 fprintf('Loaded cells: %d\n', num_cells);
-fprintf('Centroid x min/max: %.6f / %.6f\n', min(centroids(:,1)), max(centroids(:,1)));
-fprintf('Centroid y min/max: %.6f / %.6f\n', min(centroids(:,2)), max(centroids(:,2)));
+fprintf('Centroid x min/max: %.6f / %.6f\n', min(centroids(:, 1)), max(centroids(:, 1)));
+fprintf('Centroid y min/max: %.6f / %.6f\n', min(centroids(:, 2)), max(centroids(:, 2)));
 
 figure;
-plot(centroids(:,1), centroids(:,2), 'o');
+plot(centroids(:, 1), centroids(:, 2), 'o');
 grid on;
 xlabel('x');
 ylabel('y');

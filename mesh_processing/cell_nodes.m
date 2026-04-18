@@ -26,4 +26,5 @@ function nodes = cell_nodes(cell_nodes_indices, all_nodes_data)
 
         nodes(k, :) = node_coordinates(1:2);
     end
+
 end

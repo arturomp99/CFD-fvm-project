@@ -11,14 +11,20 @@ addpath('timestep_control')
 addpath('propagators')
 addpath('results_manager')
 addpath('sources')
+addpath('visualizer');
+addpath('console_logs');
 
 %% Mesh processing
+
+welcome_msg();
 
 nodes_file = FilePaths.NODES;
 cells_file = FilePaths.CELLS;
 bc_files = FilePaths.BOUNDARY_CONDITIONS;
 
-[cells, boundary_info] = mesh_processor(nodes_file, cells_file, bc_files);
+starting_mesh_processing_msg();
+cells = mesh_processor(nodes_file, cells_file, bc_files);
+finishing_mesh_processing_msg();
 
 % cells is a (1 x N) struct array, where N is the number of mesh cells.
 % Each element represents one cell and has the following fields:
@@ -54,7 +60,7 @@ centroids_x = reshape([cells.centroid], 2, [])';
 centroids_x = centroids_x(:, 1);
 w0 = initial_conditions(centroids_x);
 
-problem = @(state, time) fvm_1D_euler(state, cells, boundary_info);
+problem = @(state, time) fvm_1D_euler_implicit(state, cells);
 
 propagator = Config.PROPAGATOR;
 
@@ -68,6 +74,7 @@ stopping_condition = Config.STOPPING_CONDITION;
 manager = Config.RESULTS_MANAGER;
 
 %% Resolution
+starting_solver_msg();
 results = solver( ...
     w0, ...
     0., ...
@@ -77,6 +84,7 @@ results = solver( ...
     stopping_condition, ...
     manager ...
 );
+finishing_solver_msg();
 
 % results is a matrix of size (num_samples x (3*N + 1)), where num_samples
 % is the number of recorded time steps and N is the number of mesh cells.

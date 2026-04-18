@@ -1,22 +1,21 @@
 function [A, b] = convective_flux(state, cells, boundary_info)
-    %CONVECTIVE_FLUX Dispatches convective flux computation to the configured interpolator.
-    %   [A, b] = CONVECTIVE_FLUX(state, cells, boundary_info) delegates the assembly of the convective
-    %   flux matrices to whichever interpolator is set in Config.CONVECTIVE_FLUX_INTERPOLATOR
-    %   (e.g. upwind_interpolator or linear_interpolator).
+    %CONVECTIVE_FLUX Despacha el cálculo del flujo convectivo al interpolador configurado.
+    %   [A, b] = CONVECTIVE_FLUX(state, cells, boundary_info) delega el ensamblaje de las matrices de flujo convectivo
+    %   a cualquier interpolador configurado en Config.CONVECTIVE_FLUX_INTERPOLATOR
     %
     %   Inputs:
     %   -------
     %   state : column vector (3*N x 1)
-    %     Concatenated state vector [density; momentum; total energy] for all N cells.
+    %     Vector de estado concatenado [densidad; momento; energía total] para todas las N celdas.
     %   cells : struct array (1 x N)
-    %     Mesh cell structures containing geometry and connectivity information.
+    %     Contienen información de geometría y conectividad.
     %   boundary_info : struct (optional)
-    %     Structure containing boundary condition configuration.
+    %     Contiene la configuración de condiciones de contorno.
     %
     %   Outputs:
     %   --------
     %   A : matrix (3N x 3N)
-    %     Convective flux operator matrix.
+    %     Matriz del operador de flujo convectivo.
     %   b : column vector (3N x 1)
     %     Independent terms vector.
 
@@ -24,6 +23,5 @@ function [A, b] = convective_flux(state, cells, boundary_info)
         boundary_info = struct('boundary_types', {{}});
     end
 
-    state_matrix = state_vec2matrix(state);
     [A, b] = Config.CONVECTIVE_FLUX_INTERPOLATOR(state, cells, boundary_info);
 end

@@ -11,11 +11,11 @@ function [A, b] = initialize_A_b(num_cells)
     %
     %   Outputs:
     %   --------
-    %   A : matrix (3N x 3N)
-    %     Zero-initialised spatial operator matrix.
+    %   A : sparse matrix (3N x 3N)
+    %     Zero-initialised sparse spatial operator matrix.
     %   b : column vector (3N x 1)
     %     Zero-initialised independent terms vector.
 
-    A = zeros(num_cells * 3, num_cells * 3);
+    A = sparse(num_cells * 3, num_cells * 3);
     b = zeros(num_cells * 3, 1);
 end

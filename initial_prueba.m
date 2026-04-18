@@ -11,8 +11,7 @@ bc_files = FilePaths.BOUNDARY_CONDITIONS;
 
 cells = mesh_processor(nodes_file, cells_file, bc_files);
 
-centroids = reshape([cells.centroid], 2, [])';
-centroids_x = centroids(:, 1);
+centroids_x = get_cell_centroid_x(cells);
 
 w0 = Config.INITIAL_CONDITIONS(centroids_x);
 

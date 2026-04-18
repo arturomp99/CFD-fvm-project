@@ -27,25 +27,14 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
     A = sparse(3 * num_cells, 3 * num_cells);
     b = zeros(3 * num_cells, 1);
 
-    rho = state(1:num_cells);
-    rhou = state(num_cells + 1:2 * num_cells);
-    E = state(2 * num_cells + 1:3 * num_cells);
-
-    x = zeros(num_cells, 1);
-
-    for i = 1:num_cells
-        x(i) = cells(i).centroid(1);
-    end
-
-    % Work in sorted x-order
-    [x_sorted, perm] = sort(x);
-
-    rho_sorted = rho(perm);
-    rhou_sorted = rhou(perm);
-    E_sorted = E(perm);
-
-    % Map boundary info to sorted order
-    cells_sorted = cells(perm);
+    [ ...
+         x_sorted, ...
+         perm, ...
+         rho_sorted, ...
+         rhou_sorted, ...
+         E_sorted, ...
+         cells_sorted ...
+     ] = sort_state_by_cell_centroid_x(state, cells);
 
     rhs_rho = zeros(num_cells, 1);
     rhs_rhou = zeros(num_cells, 1);
@@ -54,7 +43,7 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
     for i = 1:num_cells
         Ui = [rho_sorted(i); rhou_sorted(i); E_sorted(i)];
 
-        % Left state at left face
+        % First cell
         if i == 1
             % Apply boundary condition by checking which BC surface this cell's left face belongs to
             [bc_type, bc_params] = get_cell_boundary_condition(cells_sorted(i), 'left', boundary_info);
@@ -65,7 +54,7 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
             xL = 0.5 * (x_sorted(i - 1) + x_sorted(i));
         end
 
-        % Right state at right face
+        % Last cell
         if i == num_cells
             % Apply boundary condition by checking which BC surface this cell's right face belongs to
             [bc_type, bc_params] = get_cell_boundary_condition(cells_sorted(i), 'right', boundary_info);

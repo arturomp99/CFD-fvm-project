@@ -50,10 +50,7 @@ function dt = euler_cfl_dt(w, t, cells, CFL)
     lambda = abs(u) + c;                            % |u| + c [m/s]
 
     % Extracción de coordenadas x de centroides de células
-    x = zeros(num_cells, 1);
-    for i = 1:num_cells
-        x(i) = cells(i).centroid(1);
-    end
+    x = get_cell_centroid_x(cells);
 
     % CRÍTICO: eliminar coordenadas x repetidas 
     % Esto puede ocurrir en mallas 2D donde varias células tienen la misma x

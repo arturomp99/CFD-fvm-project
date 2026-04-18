@@ -20,8 +20,7 @@ function out = run_sod_case(nnodes, dt_value)
     
     num_cells = length(cells);
 
-    centroids = reshape([cells.centroid], 2, [])';
-    centroids_x = centroids(:, 1);
+    centroids_x = get_cell_centroid_x(cells);
 
     % Initial condition
     w0 = Config.INITIAL_CONDITIONS(centroids_x);

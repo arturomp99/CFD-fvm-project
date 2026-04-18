@@ -27,15 +27,9 @@ function [A, b] = upwind_interpolator(state, cells, boundary_info)
     A = sparse(3 * num_cells, 3 * num_cells);
     b = zeros(3 * num_cells, 1);
 
-    rho = state(1:num_cells);
-    rhou = state(num_cells + 1:2 * num_cells);
-    E = state(2 * num_cells + 1:3 * num_cells);
+    [rho, rhou, E] = state_vec2states(state);
 
-    x = zeros(num_cells, 1);
-
-    for i = 1:num_cells
-        x(i) = cells(i).centroid(1);
-    end
+    x = get_cell_centroid_x(cells);
 
     rhs_rho = zeros(num_cells, 1);
     rhs_rhou = zeros(num_cells, 1);

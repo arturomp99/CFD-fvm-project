@@ -91,8 +91,7 @@ finishing_mesh_processing_msg(); % Tiempo transcurrido
 initial_conditions = Config.INITIAL_CONDITIONS;
 
 % Extrae coordenadas x de centroides para condiciones iniciales espacialmente variables
-centroids_x = reshape([cells.centroid], 2, [])';  % Convierte (2,N) → (N,2)
-centroids_x = centroids_x(:, 1);                  % Solo coordenada x
+centroids_x = get_cell_centroid_x(cells);
 
 % Calcula vector de estado inicial aplicando condición inicial configurada
 w0 = initial_conditions(centroids_x);

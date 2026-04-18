@@ -3,7 +3,7 @@ function [A, b] = hllc_interpolator(state, cells)
     %
     %   Implementa el solver de Riemann aproximado HLLC para las ecuaciones de
     %   Euler 1D.
-    %   
+    %
     %   ALGORITMO HLLC:
     %   ===============
     %   1. Calcula velocidades de onda S_L, S_R, S_* usando estimaciones de Roe/Davis
@@ -11,14 +11,14 @@ function [A, b] = hllc_interpolator(state, cells)
     %   3. Retorna flujo apropiado según la región:
     %      - F_L si S_L > 0 (supersónico izquierdo)
     %      - F_*L si S_L ≤ 0 < S_* (subsónico izquierdo)
-    %      - F_*R si S_* ≤ 0 < S_R (subsónico derecho)  
+    %      - F_*R si S_* ≤ 0 < S_R (subsónico derecho)
     %      - F_R si S_R ≤ 0 (supersónico derecho)
-    %   
+    %
     %   Input
     %   ---------------------
     %   state : double (3*N×1)
     %       Vector de estado [ρ₁...ρₙ; (ρu)₁...(ρu)ₙ; E₁...Eₙ]
-    %       
+    %
     %   cells : struct array (1×N)
     %       Estructura de células con campos: .centroid, .volume, etc.
     %
@@ -26,29 +26,21 @@ function [A, b] = hllc_interpolator(state, cells)
     %   --------
     %   A : sparse (3*N×3*N)
     %       Matriz jacobiana (=0 para esquemas no lineales)
-    %       
+    %
     %   b : double (3*N×1)
     %       Vector RHS con divergencia de flujos HLLC
 
     num_cells = length(cells);
 
-    A = sparse(3 * num_cells, 3 * num_cells);
-    b = zeros(3 * num_cells, 1);
+    [A, b] = initialize_A_b(num_cells);
 
-    rho = state(1:num_cells);
-    rhou = state(num_cells + 1:2 * num_cells);
-    E = state(2 * num_cells + 1:3 * num_cells);
-
-    x = zeros(num_cells, 1);
-
-    for i = 1:num_cells
-        x(i) = cells(i).centroid(1);
-    end
-
-    [x_sorted, perm] = sort(x);
-    rho_sorted = rho(perm);
-    rhou_sorted = rhou(perm);
-    E_sorted = E(perm);
+    [ ...
+         x_sorted, ...
+         perm, ...
+         rho_sorted, ...
+         rhou_sorted, ...
+         E_sorted ...
+     ] = sort_state_by_cell_centroid_x(state, cells);
 
     rhs_rho = zeros(num_cells, 1);
     rhs_rhou = zeros(num_cells, 1);
@@ -57,7 +49,9 @@ function [A, b] = hllc_interpolator(state, cells)
     for i = 1:num_cells
         Ui = [rho_sorted(i); rhou_sorted(i); E_sorted(i)];
 
+        % Left face
         if i == 1
+            % First cell
             UL = Ui;
             xL = x_sorted(i) - 0.5 * (x_sorted(i + 1) - x_sorted(i));
         else
@@ -65,7 +59,9 @@ function [A, b] = hllc_interpolator(state, cells)
             xL = 0.5 * (x_sorted(i - 1) + x_sorted(i));
         end
 
+        % Right face
         if i == num_cells
+            % Last cell
             UR = Ui;
             xR = x_sorted(i) + 0.5 * (x_sorted(i) - x_sorted(i - 1));
         else

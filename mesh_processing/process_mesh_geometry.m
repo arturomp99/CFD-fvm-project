@@ -1,4 +1,4 @@
-function [cells, boundary_info] = process_mesh_geometry( ...
+function cells = process_mesh_geometry( ...
         nodes_data, ...
         cells_data, ...
         bcs_data ...
@@ -46,11 +46,6 @@ function [cells, boundary_info] = process_mesh_geometry( ...
     %           - .normals: vectores normales unitarios salientes
     %           - .boundary_faces: índices de caras en frontera
     %           - .boundary_surface_ids: mapeo a superficies específicas
-    %           
-    %   boundary_info : struct
-    %       Información de superficies de frontera:
-    %       - .surface_names: nombres de superficies
-    %       - .surface_nodes: nodos por superficie
     %       
 
     % initialize the cells vector
@@ -66,17 +61,6 @@ function [cells, boundary_info] = process_mesh_geometry( ...
         'boundary_surface_ids', [] ... % which boundary surface each boundary face belongs to
     );
     cells = repmat(cell_data, 1, num_cells);
-
-    % Process boundary surface node sets
-    num_bc_surfaces = length(bcs_data);
-    boundary_info = struct();
-    boundary_info.surface_names = cell(num_bc_surfaces, 1);
-    boundary_info.surface_nodes = cell(num_bc_surfaces, 1);
-    
-    for bc_idx = 1:num_bc_surfaces
-        boundary_info.surface_names{bc_idx} = sprintf('surface_%d', bc_idx);
-        boundary_info.surface_nodes{bc_idx} = bcs_data{bc_idx};
-    end
 
     for cell_index = 1:num_cells
         % Process the data of one single cell (including boundary faces)

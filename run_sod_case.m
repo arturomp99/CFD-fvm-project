@@ -16,8 +16,8 @@ function out = run_sod_case(nnodes, dt_value)
     [nodes_file, cells_file, bc_files] = mesh_case_paths(nnodes);
 
     % Mesh
-    [cells, boundary_info] = mesh_processor(nodes_file, cells_file, bc_files);
-    
+    cells = mesh_processor(nodes_file, cells_file, bc_files);
+
     num_cells = length(cells);
 
     centroids_x = get_cell_centroid_x(cells);
@@ -26,7 +26,7 @@ function out = run_sod_case(nnodes, dt_value)
     w0 = Config.INITIAL_CONDITIONS(centroids_x);
 
     % Problem
-    problem = @(state, time) fvm_1D_euler(state, cells, boundary_info);
+    problem = @(state, time) fvm_1D_euler(state, cells, time);
 
     propagator = Config.PROPAGATOR;
     timestep_calculator = @(w, t) constant_dt(w, t, dt_value);

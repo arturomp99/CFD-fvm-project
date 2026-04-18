@@ -1,4 +1,4 @@
-function [A, b] = rusanov_interpolator(state, cells, boundary_info)
+function [A, b] = rusanov_interpolator(state, cells)
     %RUSANOV_INTERPOLATOR
     %   First-order finite-volume residual for 1D Euler equations
     %   using Rusanov (local Lax-Friedrichs) numerical flux.
@@ -9,17 +9,10 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
     %     State vector [density; momentum; total energy].
     %   cells : struct array (1 x N)
     %     Mesh cells with geometry and boundary information.
-    %   boundary_info : struct
-    %     Structure with .boundary_types cell array specifying 'open' or 'wall'
-    %     for each boundary surface.
     %
     %   Output format:
     %       d(state)/dt = A*state + b
     %   We return A = 0 and b = RHS(state).
-
-    if nargin < 3
-        boundary_info = struct('boundary_types', {{}});
-    end
 
     num_cells = length(cells);
     gamma = Air.GAMMA;
@@ -32,8 +25,7 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
          perm, ...
          rho_sorted, ...
          rhou_sorted, ...
-         E_sorted, ...
-         cells_sorted ...
+         E_sorted ...
      ] = sort_state_by_cell_centroid_x(state, cells);
 
     rhs_rho = zeros(num_cells, 1);
@@ -45,9 +37,8 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
 
         % First cell
         if i == 1
-            % Apply boundary condition by checking which BC surface this cell's left face belongs to
-            [bc_type, bc_params] = get_cell_boundary_condition(cells_sorted(i), 'left', boundary_info);
-            UL = apply_bc_state(Ui, bc_type, -1, bc_params);
+            % First cell
+            UL = Config.LEFT_BOUNDARY_CONDITION(Ui);
             xL = x_sorted(i) - 0.5 * (x_sorted(i + 1) - x_sorted(i));
         else
             UL = [rho_sorted(i - 1); rhou_sorted(i - 1); E_sorted(i - 1)];
@@ -56,9 +47,8 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
 
         % Last cell
         if i == num_cells
-            % Apply boundary condition by checking which BC surface this cell's right face belongs to
-            [bc_type, bc_params] = get_cell_boundary_condition(cells_sorted(i), 'right', boundary_info);
-            UR = apply_bc_state(Ui, bc_type, +1, bc_params);
+            % Last cell
+            UR = Config.RIGHT_BOUNDARY_CONDITION(Ui);
             xR = x_sorted(i) + 0.5 * (x_sorted(i) - x_sorted(i - 1));
         else
             UR = [rho_sorted(i + 1); rhou_sorted(i + 1); E_sorted(i + 1)];
@@ -77,13 +67,13 @@ function [A, b] = rusanov_interpolator(state, cells, boundary_info)
         rhs_E(i) = rhs_i(3);
     end
 
-    % Map back to original cell ordering
-    invperm = zeros(num_cells, 1);
-    invperm(perm) = 1:num_cells;
+    rhs_rho_orig = zeros(num_cells, 1);
+    rhs_rhou_orig = zeros(num_cells, 1);
+    rhs_E_orig = zeros(num_cells, 1);
 
-    rhs_rho_orig = rhs_rho(invperm);
-    rhs_rhou_orig = rhs_rhou(invperm);
-    rhs_E_orig = rhs_E(invperm);
+    rhs_rho_orig(perm) = rhs_rho;
+    rhs_rhou_orig(perm) = rhs_rhou;
+    rhs_E_orig(perm) = rhs_E;
 
     b = [rhs_rho_orig; rhs_rhou_orig; rhs_E_orig];
 end

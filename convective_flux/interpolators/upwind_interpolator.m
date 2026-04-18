@@ -1,4 +1,4 @@
-function [A, b] = upwind_interpolator(state, cells, boundary_info)
+function [A, b] = upwind_interpolator(state, cells)
     %UPWIND_INTERPOLATOR
     %   First-order finite-volume discretisation for 1D Euler
     %   using Rusanov (local Lax-Friedrichs) numerical flux.
@@ -9,17 +9,10 @@ function [A, b] = upwind_interpolator(state, cells, boundary_info)
     %     State vector [density; momentum; total energy].
     %   cells : struct array (1 x N)
     %     Mesh cells with geometry and boundary information.
-    %   boundary_info : struct
-    %     Structure with .boundary_types cell array specifying 'open' or 'wall'
-    %     for each boundary surface.
     %
     %   Returns:
     %       d(state)/dt = A*state + b
     %   Here A = 0 and b contains the nonlinear spatial residual.
-
-    if nargin < 3
-        boundary_info = struct('boundary_types', {{}});
-    end
 
     num_cells = length(cells);
     gamma = Air.GAMMA;
@@ -42,9 +35,8 @@ function [A, b] = upwind_interpolator(state, cells, boundary_info)
 
         % Left face
         if isempty(neighbours.left)
-            % Apply boundary condition by checking which BC surface this cell's left face belongs to
-            [bc_type, bc_params] = get_cell_boundary_condition(cells(i), 'left', boundary_info);
-            UL = apply_bc_state(Ui, bc_type, -1, bc_params);
+            % Left boundary
+            UL = Config.LEFT_BOUNDARY_CONDITION(Ui);
             xL = x(i) - 0.5 * local_dx(i, x, cells);
         else
             jL = neighbours.left;
@@ -57,9 +49,8 @@ function [A, b] = upwind_interpolator(state, cells, boundary_info)
 
         % Right face
         if isempty(neighbours.right)
-            % Apply boundary condition by checking which BC surface this cell's right face belongs to
-            [bc_type, bc_params] = get_cell_boundary_condition(cells(i), 'right', boundary_info);
-            UR = apply_bc_state(Ui, bc_type, +1, bc_params);
+            % Right boundary
+            UR = Config.RIGHT_BOUNDARY_CONDITION(Ui);
             xR = x(i) + 0.5 * local_dx(i, x, cells);
         else
             jR = neighbours.right;

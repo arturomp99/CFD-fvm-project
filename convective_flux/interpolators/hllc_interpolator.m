@@ -52,7 +52,7 @@ function [A, b] = hllc_interpolator(state, cells)
         % Left face
         if i == 1
             % First cell
-            UL = Ui;
+            UL = Config.LEFT_BOUNDARY_CONDITION(Ui);
             xL = x_sorted(i) - 0.5 * (x_sorted(i + 1) - x_sorted(i));
         else
             UL = [rho_sorted(i - 1); rhou_sorted(i - 1); E_sorted(i - 1)];
@@ -62,7 +62,7 @@ function [A, b] = hllc_interpolator(state, cells)
         % Right face
         if i == num_cells
             % Last cell
-            UR = Ui;
+            UR = Config.RIGHT_BOUNDARY_CONDITION(Ui);
             xR = x_sorted(i) + 0.5 * (x_sorted(i) - x_sorted(i - 1));
         else
             UR = [rho_sorted(i + 1); rhou_sorted(i + 1); E_sorted(i + 1)];

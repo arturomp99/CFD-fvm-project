@@ -4,67 +4,49 @@ classdef Config
 
     properties (Constant)
         T0 = 0.0; % Tiempo inicial (típicamente 0)
-        T_END = 0.2; % Tiempo final (ajustar según el problema)
+        T_END = 1.2; % Tiempo final (ajustar según el problema)
         SAMPLE_DT = 1e-3; % Intervalo de muestreo para resultados [s]
-
-        % ============================================
-        % CONFIGURACIÓN DE CONDICIONES DE FRONTERA:
-        % ============================================
-        %
-        % Tipos disponibles por superficie:
-        %   'open'     - Frontera transmisiva (ondas pasan libremente)
-        %   'wall'     - Pared sólida reflexiva (velocidad normal = 0)
-        %   'velocity' - Velocidad impuesta (requiere BOUNDARY_VELOCITIES)
-        % ORDEN IMPORTANTE: Debe coincidir con FilePaths.BOUNDARY_CONDITIONS
-        BOUNDARY_TYPES = { ...
-                              'open', ... % 1: bc_bottom (entrada/salida libre)
-                              'velocity', ... % 2: bc_left (velocidad prescrita)
-                              'open', ... % 3: bc_right (salida libre)
-                              'open', ... % 4: bc_top (frontera abierta)
-                              'open' ... % 5: bc_whole_contour (contorno completo)
-                          };
-
-        % Valores de velocidad para condiciones 'velocity' [m/s]
-        % Solo se usan cuando el BOUNDARY_TYPES correspondiente es 'velocity'
-        % Usar NaN para superficies que no requieren velocidad específica
-        BOUNDARY_VELOCITIES = [ ...
-                                   NaN, ...
-                                   100.0, ...
-                                   NaN, ...
-                                   NaN, ...
-                                   NaN ...
-                               ];
 
         % ============================
         % DEFINICIÓN DEL PROBLEMA:
         % ===========================
         % Condiciones iniciales - función que define el estado inicial
         % Opciones predefinidas: uniform(), sod()
-        INITIAL_CONDITIONS = @(pos) ... % funciónn de la posición
-            uniform( ...
-            Air.SEA_LEVEL_PRESSURE, ... % 101325 Pa (presión atmosférica)
-            Air.SEA_LEVEL_DENSITY, ... % 1.225 kg/m³ (densidad del aire)
-            0.0, ... % 0 m/s (velocidad inicial)
-            pos ... % coordenadas x de centroides
-        );
+
+        % INITIAL_CONDITIONS = @(pos) ... % funciónn de la posición
+        %     uniform( ...
+        %     Air.SEA_LEVEL_PRESSURE, ... % 101325 Pa (presión atmosférica)
+        %     Air.SEA_LEVEL_DENSITY, ... % 1.225 kg/m³ (densidad del aire)
+        %     0.0, ... % 0 m/s (velocidad inicial)
+        %     pos ... % coordenadas x de centroides
+        % );
 
         % Ejemplo alternativo - Tubo de choque de Sod (descomentado para usar):
-        %     sod( ...
-        %         struct('left', 1.0, 'right', 0.1), ...    % presión [Pa]
-        %         struct('left', 1.0, 'right', 0.125), ...  % densidad [kg/m³]
-        %         struct('left', 0.0, 'right', 0.0), ...    % velocidad [m/s]
-        %         0.5, ...                                  % posición discontinuidad [m]
-        %         pos ...
-        %     );
+        INITIAL_CONDITIONS = @(pos) ... % funciónn de la posición
+            sod( ...
+            struct('left', 1.0, 'right', 0.1), ... % presión [Pa]
+            struct('left', 1.0, 'right', 0.125), ... % densidad [kg/m³]
+            struct('left', 0.0, 'right', 0.0), ... % velocidad [m/s]
+            0.5, ... % posición discontinuidad [m]
+            pos ...
+        );
 
         % Términos fuente - función para fuentes/sumideros de masa, momento o energía
         SOURCE_TERMS = @(state, pos, t) ...
-            point_source();
+            no_source(pos)
 
-        % Condiciones de frontera adicionales - para BCs complejas dependientes del tiempo
-        % Actualmente no usado (retorna 0). Extender para casos avanzados.
-        BOUNDARY_CONDITIONS = @(state, pos, t) ...
-            0;
+        LEFT_BOUNDARY_CONDITION = @(face_state, t) ...
+            closed_bc(face_state);
+
+        RIGHT_BOUNDARY_CONDITION = @(face_state, t) ...
+            closed_bc(face_state);
+
+        % Alternative boundary conditions (uncomment to use):
+        % LEFT_BOUNDARY_CONDITION = @(face_state, t) ...
+        %     open_to_atmosphere_bc(face_state, Air.GAMMA); % Open to atmosphere
+        %
+        % RIGHT_BOUNDARY_CONDITION = @(face_state, t) ...
+        %     closed_bc(face_state, Air.GAMMA); % Closed boundary (wall)
 
         % ============================
         % CONFIGURACIÓN DEL SOLVER:

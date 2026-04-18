@@ -1,6 +1,6 @@
-function [A, b] = linear_interpolator(state, cells, boundary_info)
+function [A, b] = linear_interpolator(state, cells)
     %LINEAR_INTERPOLATOR Assembles the convective flux matrix using linear (central) interpolation.
-    %   [A, b] = LINEAR_INTERPOLATOR(state, cells, boundary_info) builds the spatial operator
+    %   [A, b] = LINEAR_INTERPOLATOR(state, cells) builds the spatial operator
     %   matrices for convective transport using arithmetic averaging of cell
     %   velocities to compute face velocities (second-order central scheme).
     %
@@ -14,9 +14,6 @@ function [A, b] = linear_interpolator(state, cells, boundary_info)
     %     Concatenated state vector [density; momentum; total energy].
     %   cells : struct array (1 x N)
     %     Mesh cells with 'connectivity' and 'centroid' fields.
-    %   boundary_info : struct (optional)
-    %     Structure with .boundary_types cell array specifying 'open' or 'wall'
-    %     for each boundary surface. (Currently not used in this interpolator)
     %
     %   Outputs:
     %   --------
@@ -24,9 +21,6 @@ function [A, b] = linear_interpolator(state, cells, boundary_info)
     %     Central-difference convective operator matrix.
     %   b : column vector (3N x 1)
     %     Zero vector (no source terms added here).
-
-    % Note: boundary_info is accepted for interface compatibility but not used
-    % in this central-difference scheme (periodic or zero-flux boundaries assumed).
 
     num_cells = length(cells);
 

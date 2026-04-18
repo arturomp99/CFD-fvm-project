@@ -1,16 +1,26 @@
 function temperature = get_temperature(density, pressure)
-    %GET_TEMPERATURE Computes temperature from the ideal gas law.
-    %   T = GET_TEMPERATURE(density, pressure) applies the ideal gas relation
-    %   p = rho * R * T to obtain T = p / (R * rho).
+    %GET_TEMPERATURE Calcula temperatura usando la ecuación de estado de gas ideal
     %
-    %   Inputs:
-    %   -------
-    %   density  : double - Mass density rho. [kg/m^3]
-    %   pressure : double - Static pressure p. [Pa]
+    %   Aplica la ecuación de estado de gas ideal para obtener temperatura
+    %   a partir de densidad y presión.
+    %   
+    %   ECUACIÓN DE ESTADO:
+    %   ==================
+    %   T = p/(ρR)
+    %   
+    %   Input
+    %   ---------------------  
+    %   density : double
+    %       Densidad del fluido ρ [kg/m³]
+    %       
+    %   pressure : double
+    %       Presión estática p [Pa]
     %
-    %   Outputs:
+    %   Output
     %   --------
-    %   temperature : double - Static temperature T. [K]
+    %   temperature : double
+    %       Temperatura absoluta T [K]
+    %       
 
     temperature = pressure / Air.R / density;
 end

@@ -3,28 +3,42 @@ function [A, b] = fvm_1D_euler( ...
         cells, ...
         boundary_info ...
     )
-    %FVM_1D_EULER Computes the spatial discretisation matrices for the 1D Euler equations.
-    %   [A, b] = FVM_1D_EULER(state, cells, boundary_info) assembles the system matrices for the
-    %   finite volume discretisation of the inviscid 1D Euler equations by
-    %   computing the convective fluxes through each cell face.
+    %FVM_1D_EULER Discretización espacial de las ecuaciones de Euler 1D por volúmenes finitos
+    %   Esta función coordina:
+    %   1. Cálculo de flujos convectivos (via CONVECTIVE_FLUX_INTERPOLATOR)
+    %   2. Aplicación de términos fuente (via SOURCE_TERMS)
+    %   3. Ensamblado del sistema dw/dt = A*w + b
+    %   
+    %   MODULARIDAD:
+    %   ============
+    %   El interpolador específico se selecciona en Config.CONVECTIVE_FLUX_INTERPOLATOR:
+    %   - rusanov_interpolator
+    %   - hllc_interpolator
+    %   - linear_interpolator
     %
-    %   Inputs:
-    %   -------
-    %   state : column vector (3*N x 1)
-    %     Concatenated state vector [density; momentum; total energy] for all N cells.
-    %   cells : struct array (1 x N)
-    %     Mesh cell structures as produced by mesh_processor, containing geometry
-    %     and connectivity information.
-    %   boundary_info : struct (optional)
-    %     Structure containing boundary condition configuration:
-    %       .boundary_types - cell array of BC types ('open' or 'wall') for each surface
+    %   Input
+    %   ---------------------
+    %   state : double (3*N×1)
+    %       Vector de estado concatenado [ρ₁...ρₙ; (ρu)₁...(ρu)ₙ; E₁...Eₙ]
+    %       
+    %   cells : struct array (1×N)
+    %       Estructura de células procesadas por mesh_processor con:
+    %       - .centroid: coordenadas de centroides
+    %       - .connectivity: vecinos que comparten caras
+    %       - .boundary_faces: índices de caras en fronteras
+    %       
+    %   boundary_info : struct (opcional)
+    %       Información de condiciones límite:
+    %       - .boundary_types: {'open', 'wall', 'velocity', ...}
+    %       - .boundary_velocities: velocidades para BCs tipo 'velocity'
     %
-    %   Outputs:
+    %   Output:
     %   --------
-    %   A : matrix (3N x 3N)
-    %     Spatial operator matrix such that dw/dt = A*w + b.
-    %   b : column vector (3N x 1)
-    %     Independent terms vector (source / boundary contributions).
+    %   A : double/sparse (3*N×3*N)
+    %       Matriz del operador espacial (típicamente =0 para esquemas no lineales)
+    %       
+    %   b : double (3*N×1)
+    %       Vector de términos independientes (divergencia de flujos + fuentes)
 
     if nargin < 3
         boundary_info = struct('boundary_types', {{}});

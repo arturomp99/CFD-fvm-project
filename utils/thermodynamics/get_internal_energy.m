@@ -1,18 +1,31 @@
 function energy = get_internal_energy(density, pressure, velocity)
-    %GET_INTERNAL_ENERGY Computes the total specific energy (internal + kinetic) per unit volume.
-    %   energy = GET_INTERNAL_ENERGY(density, pressure, velocity) calculates the
-    %   total energy E = rho * (c_v * T + v^2/2), where the temperature is derived
-    %   from the ideal gas law.
+    %GET_INTERNAL_ENERGY Calcula energía total por unidad de volumen para gas ideal
     %
-    %   Inputs:
-    %   -------
-    %   density  : double - Mass density rho. [kg/m^3]
-    %   pressure : double - Static pressure p. [Pa]
-    %   velocity : double - Flow velocity magnitude v. [m/s]
+    %   FÍSICA:
+    %   =======
+    %   E = ρe + ½ρu² = ρ(e + ½u²)
+    %   
+    %   donde:
+    %   - e = Cv*T: energía interna específica [J/kg]
+    %   - ½u²: energía cinética específica [J/kg]
+    %   - E: energía total por unidad de volumen [J/m³]
     %
-    %   Outputs:
+    %   Input
+    %   ---------------------
+    %   density : double
+    %       Densidad del fluido ρ [kg/m³]
+    %       
+    %   pressure : double  
+    %       Presión estática p [Pa = N/m²]
+    %       
+    %   velocity : double
+    %       Magnitud de velocidad u [m/s]
+    %
+    %   Ouptut
     %   --------
-    %   energy : double - Total energy per unit volume E = rho*(c_v*T + v^2/2). [J/m^3]
+    %   energy : double
+    %       Energía total por unidad de volumen E [J/m³]
+    %       
 
     energy = density * (Air.C_V * get_temperature(density, pressure) + velocity ^ 2/2);
 end

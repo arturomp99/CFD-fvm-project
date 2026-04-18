@@ -1,15 +1,20 @@
 function [stop] = stop_at_time(t, t_end)
-    %STOP_AT_TIME Documentación muy extensa e interesante.
-    %   Detalles varios del cálculo.
+    %STOP_AT_TIME Criterio de parada basado en tiempo máximo de simulación
+    %   detener cuando se alcanza un tiempo final especificado.
     %
-    %   Inputs:
-    %   -------
-    %   t : Instante temporal. [s]
-    %   t_end : Tiempo en el que parar. [s]
+    %   Input
+    %   ---------------------
+    %   t : double
+    %       Tiempo actual de simulación [s]
+    %       
+    %   t_end : double
+    %       Tiempo final deseado [s]
     %
-    %   Outputs:
+    %   Output
     %   --------
-    %   stop : True si hay que parar de calcular.
+    %   stop : logical
+    %       true si t >= t_end, false en caso contrario
+    
 
     if (t >= t_end)
         stop = true;

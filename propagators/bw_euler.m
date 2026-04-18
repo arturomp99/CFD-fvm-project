@@ -3,23 +3,30 @@ function [w_new] = bw_euler( ...
         t, ...
         dt, ...
         f)
-    %BW_EULER Integra un paso temporal la función f mediante un método de Euler
-    %implícito de un paso y primer orden.
+    %BW_EULER Integrador temporal implícito de Euler hacia atrás
     %
-    %   Inputs:
-    %   -------
-    %   w : array(double)
-    %     Vector de estado en el instante t. Es un vector columna.
+    %   Implementa el método de Euler implícito de primer orden para integrar
+    %   el sistema de EDO: dw/dt = A*w + b
+    %   
+    %   Input
+    %   ---------------------
+    %   w : double (3*N×1)
+    %       Vector de estado en tiempo t [ρ; ρu; E]
+    %       
     %   t : double
-    %     Instante temporal a partir del que integrar. [s]
+    %       Tiempo actual [s]
+    %       
     %   dt : double
-    %     Paso temporal.  [s]
-    %   f :
-    %     Función que calcula la derivada temporal de w.
+    %       Paso temporal [s] (sin restricción CFL)
+    %       
+    %   f : function_handle
+    %       Función problema que retorna [A, b] = f(w, t)
     %
-    %   Outputs:
+    %   Output:
     %   --------
-    %   w_new : Vector de estado en t + dt.
+    %   w_new : double (3*N×1)
+    %       Vector de estado en tiempo t + dt
+    %       
 
     [A, b] = f(w, t);
     I = eye(size(A));

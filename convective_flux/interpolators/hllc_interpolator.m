@@ -1,11 +1,34 @@
 function [A, b] = hllc_interpolator(state, cells)
     %HLLC_INTERPOLATOR
-    %   First-order finite-volume residual for 1D Euler equations
-    %   using HLLC approximate Riemann solver.
     %
-    %   Output format:
-    %       d(state)/dt = A*state + b
-    %   Here A = 0 and b = RHS(state).
+    %   Implementa el solver de Riemann aproximado HLLC para las ecuaciones de
+    %   Euler 1D.
+    %   
+    %   ALGORITMO HLLC:
+    %   ===============
+    %   1. Calcula velocidades de onda S_L, S_R, S_* usando estimaciones de Roe/Davis
+    %   2. Identifica región del problema de Riemann según velocidades de onda
+    %   3. Retorna flujo apropiado según la región:
+    %      - F_L si S_L > 0 (supersónico izquierdo)
+    %      - F_*L si S_L ≤ 0 < S_* (subsónico izquierdo)
+    %      - F_*R si S_* ≤ 0 < S_R (subsónico derecho)  
+    %      - F_R si S_R ≤ 0 (supersónico derecho)
+    %   
+    %   Input
+    %   ---------------------
+    %   state : double (3*N×1)
+    %       Vector de estado [ρ₁...ρₙ; (ρu)₁...(ρu)ₙ; E₁...Eₙ]
+    %       
+    %   cells : struct array (1×N)
+    %       Estructura de células con campos: .centroid, .volume, etc.
+    %
+    %   Output
+    %   --------
+    %   A : sparse (3*N×3*N)
+    %       Matriz jacobiana (=0 para esquemas no lineales)
+    %       
+    %   b : double (3*N×1)
+    %       Vector RHS con divergencia de flujos HLLC
 
     num_cells = length(cells);
 

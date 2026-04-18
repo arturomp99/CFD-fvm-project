@@ -1,74 +1,156 @@
+% ===========================================================================
+% MAIN.M - Solver CFD de Volúmenes Finitos para Ecuaciones de Euler 1D
+% ===========================================================================
+%
+% Este script ejecuta una simulación completa CFD usando el método de
+% volúmenes finitos para resolver las ecuaciones de Euler compresibles 1D.
+%
+% FLUJO DE EJECUCIÓN:
+% ==================
+% 1. Configuración inicial y paths
+% 2. Procesamiento de malla y geometría  
+% 3. Configuración del problema físico
+% 4. Resolución temporal del sistema
+% 5. Post-procesamiento y visualización
+%
+% Ver Config.m para personalizar parámetros de simulación.
+
 clc; clear all; close all;
 
-addpath('mesh_processing');
-addpath(genpath('utils'));
-addpath('constants');
-addpath('initial_conditions');
-addpath('problems/fvm_1D_euler');
-addpath(genpath('convective_flux'));
-addpath('stopping_criteria')
-addpath('timestep_control')
-addpath('propagators')
-addpath('results_manager')
-addpath('sources')
-addpath('visualizer');
-addpath('console_logs');
+% ===========================================================================
+% 1. CONFIGURACIÓN DE PATHS Y CARGA DE MÓDULOS
+% ===========================================================================
+% Agrega todos los directorios necesarios al path de MATLAB para acceder
+% a las funciones del solver CFD
 
-%% Mesh processing
+addpath('mesh_processing');         % Procesamiento de malla y geometría
+addpath(genpath('utils'));          % Utilidades (termodinámica, fronteras, etc.)  
+addpath('constants');               % Constantes físicas y configuración
+addpath('initial_conditions');      % Condiciones iniciales predefinidas
+addpath('problems/fvm_1D_euler');   % Implementación específica de Euler 1D
+addpath(genpath('convective_flux'));% Esquemas de interpolación de flujos
+addpath('stopping_criteria')       % Criterios de parada de simulación
+addpath('timestep_control')        % Control de paso temporal
+addpath('propagators')             % Integradores temporales
+addpath('results_manager')         % Gestión de resultados y muestreo
+addpath('sources')                 % Términos fuente (actualmente deshabilitados)
+addpath('visualizer');             % Herramientas de visualización
+addpath('console_logs');           % Mensajes informativos
 
-welcome_msg();
+%% ========================================================================
+%% 2. PROCESAMIENTO DE MALLA
+%% ========================================================================
+% Carga archivos de malla (.dat) y construye estructuras de datos optimizadas
+% para cálculos FVM con información geométrica completa
 
-nodes_file = FilePaths.NODES;
-cells_file = FilePaths.CELLS;
-bc_files = FilePaths.BOUNDARY_CONDITIONS;
+welcome_msg();  % Mensaje de bienvenida con información del proyecto
 
-starting_mesh_processing_msg();
-cells = mesh_processor(nodes_file, cells_file, bc_files);
-finishing_mesh_processing_msg();
+% Rutas a archivos de malla (configuradas en FilePaths.m)
+nodes_file = FilePaths.NODES;                    % Coordenadas de nodos
+cells_file = FilePaths.CELLS;                    % Conectividad de células  
+bc_files = FilePaths.BOUNDARY_CONDITIONS;       % Superficies de frontera
 
-% cells is a (1 x N) struct array, where N is the number of mesh cells.
-% Each element represents one cell and has the following fields:
-%   .nodes              - (V x 2) array of node coordinates [x, y] for the V vertices of the cell. [m]
-%   .faces              - (V x 2 x 2) array of face definitions; faces(i,1,:) and faces(i,2,:)
-%                         are the [x,y] coordinates of the two endpoints of face i.
-%   .volume             - scalar area of the cell (polyarea in 2D). [m^2]
-%   .centroid           - (1 x 2) vector [cx, cy] of the geometric centroid. [m]
-%   .area               - (1 x V) vector of edge lengths (face areas in 2D). [m]
-%   .normals            - (V x 2) array of outward unit normal vectors for each face.
-%   .connectivity       - row vector of indices of the neighbouring cells that share a face.
-%   .boundary_faces     - indices of faces that lie on a boundary surface.
-%   .boundary_surface_ids - which boundary surface each boundary face belongs to.
+starting_mesh_processing_msg();  % Mensaje informativo con timer
+[cells, boundary_info] = mesh_processor(nodes_file, cells_file, bc_files);
+finishing_mesh_processing_msg(); % Tiempo transcurrido
+
+% ESTRUCTURA DE DATOS RESULTANTE:
+% cells(i) = estructura con geometría completa de la célula i
+%   .nodes              - Coordenadas [x, y] de vértices de la célula [m]
+%   .faces              - Definiciones de caras como endpoints [m]
+%   .volume             - Área de la célula (en 2D) [m²]
+%   .centroid           - Centro geométrico [cx, cy] [m]
+%   .area               - Longitudes de aristas (áreas de caras en 2D) [m]
+%   .normals            - Vectores normales unitarios salientes por cara
+%   .connectivity       - Índices de células vecinas que comparten caras
+%   .boundary_faces     - Índices de caras ubicadas en fronteras
+%   .boundary_surface_ids - Mapeo a superficies de frontera específicas
 %
-% boundary_info contains:
-%   .surface_names        - cell array of boundary surface identifiers
-%   .surface_nodes        - cell array of node indices for each surface
-%   .boundary_types       - cell array of BC types ('open', 'wall', or 'velocity') for each surface
-%   .boundary_velocities  - array of velocity values [m/s] for 'velocity' BCs (NaN for others)
+% boundary_info = información de condiciones límite
+%   .surface_names      - Nombres identificadores de superficies de frontera  
+%   .surface_nodes      - Índices de nodos por superficie
+%   .boundary_types     - Tipos BC ('open', 'wall', 'velocity') por superficie
+%   .boundary_velocities- Valores de velocidad [m/s] para BCs tipo 'velocity'
 %
-% Each cell stores .boundary_surface_ids which maps to the indices in boundary_info.
-% The interpolators use get_cell_boundary_condition() to find the correct BC
-% for each boundary face by checking the cell's nodes against the boundary surfaces.
+% Los interpoladores usan get_cell_boundary_condition() para determinar
+% la BC correcta para cada cara de frontera comparando nodos de la célula
+% con las superficies de frontera definidas.
 
-%% Problem configuration
-% se concatenarán 3 vectores uno detrás de otro
-%   - la densidad media para cada celda
-%   - la cantidad de movimiento para cada celda
-%   - la energía interna más la energía cinética para cada celda.
+%% ========================================================================
+%% 3. CONFIGURACIÓN DEL PROBLEMA FÍSICO  
+%% ========================================================================
+% Define condiciones iniciales, esquemas numéricos y parámetros de simulación
 
+% VECTOR DE ESTADO CONCATENADO:
+% El solver utiliza un vector de estado agrupado por variable de tamaño 3*N×1:
+% w = [ρ₁; ρ₂; ...; ρₙ;           % Densidad para cada celda [kg/m³]
+%      (ρu)₁; (ρu)₂; ...; (ρu)ₙ;  % Momentum para cada celda [kg/(m²·s)]
+%      E₁; E₂; ...; Eₙ]           % Energía total para cada celda [J/m³]
+
+% Configuración de condiciones iniciales desde Config.m
 initial_conditions = Config.INITIAL_CONDITIONS;
-centroids_x = reshape([cells.centroid], 2, [])';
-centroids_x = centroids_x(:, 1);
+
+% Extrae coordenadas x de centroides para condiciones iniciales espacialmente variables
+centroids_x = reshape([cells.centroid], 2, [])';  % Convierte (2,N) → (N,2)
+centroids_x = centroids_x(:, 1);                  % Solo coordenada x
+
+% Calcula vector de estado inicial aplicando condición inicial configurada
 w0 = initial_conditions(centroids_x);
 
-problem = @(state, time) fvm_1D_euler_implicit(state, cells);
+% FUNCIÓN DEL PROBLEMA:
+% Define la función que calcula [A, b] tal que dw/dt = A*w + b
+% Nota: Usando versión implícita que puede manejar matrices no-cero A
+problem = @(state, time) fvm_1D_euler(state, cells, boundary_info);
 
+% COMPONENTES DEL SOLVER CONFIGURABLES:
+% Todos definidos en Config.m para fácil personalización
+
+% Integrador temporal (explícito vs implícito)
 propagator = Config.PROPAGATOR;
 
+% Control de paso temporal (fijo vs adaptativo CFL)
 timestep_calculator = Config.TIMESTEP_CALCULATOR;
 
+% Criterio de parada (tiempo vs convergencia)
 stopping_condition = Config.STOPPING_CONDITION;
 
-% Use a sampling period of 0.01 s. Configure the results manager using an
+% Gestor de resultados - muestreo temporal para post-procesamiento
+% Configurado para muestrear cada SAMPLE_DT segundos y crear matriz
+% estructurada compatible con visualizer()
+manager = Config.RESULTS_MANAGER;
+
+%% ========================================================================
+%% 4. RESOLUCIÓN TEMPORAL
+%% ========================================================================
+% Ejecuta bucle de integración temporal hasta satisfacer criterio de parada
+
+starting_solver_msg();  % Mensaje informativo con timer
+
+results = solver( ...
+    w0, ...                  % Vector de estado inicial [3*N×1]
+    Config.T0, ...           % Tiempo inicial [s]
+    problem, ...             % Función que calcula dw/dt = A*w + b
+    propagator, ...          % Integrador temporal (fw_euler/bw_euler)
+    timestep_calculator, ... % Calculadora de dt (constante/CFL adaptativo)
+    stopping_condition, ...  % Criterio de parada (tiempo/convergencia)
+    manager ...              % Gestor de muestreo de resultados
+);
+
+finishing_solver_msg(); % Tiempo transcurrido total
+
+% FORMATO DE RESULTADOS:
+% results es una matriz (num_samples × (3*N + 1)) donde:
+%   results(i, 1)         → tiempo t [s] en muestra i
+%   results(i, 2:N+1)     → densidad ρ para cada celda [kg/m³] 
+%   results(i, N+2:2N+1)  → momentum ρu para cada celda [kg/(m²·s)]
+%   results(i, 2N+2:3N+1) → energía total E para cada celda [J/m³]
+
+%% ========================================================================
+%% 5. POST-PROCESAMIENTO Y VISUALIZACIÓN  
+%% ========================================================================
+% Genera gráficos espacio-tiempo de todas las variables termodinámicas
+
+visualizer(results, centroids_x);
 % anonymous function, so the solver only sees a function that depends on
 % the state vector, the time and the previous results structure.
 manager = Config.RESULTS_MANAGER;

@@ -1,3 +1,5 @@
+% Mensaje de bienvenida del solver CFD
+% Muestra información del proyecto y créditos de autores
 function welcome_message()
     fprintf("\nHola!\n")
     fprintf("\nBienvenido al método de los volúmenes finitos\n")

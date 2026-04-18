@@ -1,3 +1,5 @@
+% Mensaje de inicio del procesado de malla
+% Inicia timer para medir tiempo de ejecución
 function starting_mesh_processing_msg()
     fprintf("\n\nComenzando el processado de la malla... ");
     tic;

@@ -1,17 +1,23 @@
 function [stop] = stop_at_floor(w, t)
-    %STOP_AT_FLOOR Stops the simulation when the projectile reaches the ground (y <= 0).
-    %   stop = STOP_AT_FLOOR(w, t) returns true when the y-position component of the
-    %   state vector becomes negative, indicating the projectile has hit the floor.
-    %   Intended for use with the cannon problem where w = [x; y; vx; vy].
+    %STOP_AT_FLOOR Criterio de parada por tolerancia o convergencia
     %
-    %   Inputs:
-    %   -------
-    %   w : column vector - Current state vector; w(2) is the y-position. [m, m, m/s, m/s]
-    %   t : double        - Current time (unused). [s]
+    %   NOTA: Originalmente diseñada para un problema de proyectil, no para
+    %   ecuaciones de Euler compresibles.
+    %   
     %
-    %   Outputs:
+    %   Input
+    %   ---------------------
+    %   w : double (3*N×1)
+    %       Vector de estado CFD [ρ; ρu; E] (mal interpretado actualmente)
+    %       
+    %   t : double
+    %       Tiempo actual [s] (no usado)
+    %
+    %   Output
     %   --------
-    %   stop : logical - True when the projectile is at or below y = 0.
+    %   stop : logical
+    %       Siempre true (detiene simulación inmediatamente)
+    %       
 
     stop = true;
 

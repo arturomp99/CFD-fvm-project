@@ -1,4 +1,4 @@
-function plot_at_specific_time(centroids_x, results, time)
+function plot_at_specific_time(centroids_x, results, t_target)
     centroids_x = centroids_x(:);
     N = length(centroids_x);
 

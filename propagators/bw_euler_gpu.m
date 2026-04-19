@@ -1,4 +1,4 @@
-function [w_new] = bw_euler( ...
+function [w_new] = bw_euler_sparse( ...
         w, ...
         t, ...
         dt, ...
@@ -30,9 +30,16 @@ function [w_new] = bw_euler( ...
 
     [A, b] = f(w, t);
 
-    I = eye(size(A));
-    K = (I - A * dt);
-    c = w + b * dt;
-    w_new = linsolve(K, c);
+    A_gpu = gpuArray(A);
+    b_gpu = gpuArray(b);
+    w_gpu = gpuArray(w);
+
+    I = eye(size(A_gpu), 'gpuArray');
+    K = (I - A_gpu * dt);
+    c = w_gpu + b_gpu * dt;
+
+    w_new_gpu = linsolve(K, c);
+    % Move the result back to system memory
+    w_new = gather(w_new_gpu);
 
 end

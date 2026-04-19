@@ -41,13 +41,6 @@ classdef Config
         RIGHT_BOUNDARY_CONDITION = @(face_state, t) ...
             closed_bc(face_state);
 
-        % Alternative boundary conditions (uncomment to use):
-        % LEFT_BOUNDARY_CONDITION = @(face_state, t) ...
-        %     open_to_atmosphere_bc(face_state, Air.GAMMA); % Open to atmosphere
-        %
-        % RIGHT_BOUNDARY_CONDITION = @(face_state, t) ...
-        %     closed_bc(face_state, Air.GAMMA); % Closed boundary (wall)
-
         % ============================
         % CONFIGURACIÓN DEL SOLVER:
         % ============================

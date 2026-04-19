@@ -25,7 +25,6 @@ function [A, b] = fvm_1D_euler( ...
     %       Estructura de células procesadas por mesh_processor con:
     %       - .centroid: coordenadas de centroides
     %       - .connectivity: vecinos que comparten caras
-    %       - .boundary_faces: índices de caras en fronteras   %
     %   t : double
     %       Current time [s]    %
     %   Output:

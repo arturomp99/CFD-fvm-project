@@ -7,7 +7,7 @@ classdef Config
         T_END = 0.2; % Tiempo final (ajustar según el problema)
         SAMPLE_DT = 1e-3; % Intervalo de muestreo para resultados [s]
 
-        IS_MESH_PROCESSING_PARALLEL = false;
+        IS_MESH_PROCESSING_PARALLEL = true;
         % ============================
         % DEFINICIÓN DEL PROBLEMA:
         % ===========================
@@ -55,13 +55,13 @@ classdef Config
         %   - upwind_interpolator: 1er orden, estable (similar a Rusanov)
         %   - linear_interpolator: 2do orden, menos difusivo, puede ser inestable
         CONVECTIVE_FLUX_INTERPOLATOR = @(state, cells) ...
-            parallel_hllc_interpolator(state, cells); % Esquema HLLC por defecto
+            hllc_interpolator(state, cells); % Esquema HLLC por defecto
 
         % Integrador temporal - define método de avance en tiempo
         %   - fw_euler: Explícito (rápido, limitado por CFL)
         %   - bw_euler: Implícito (estable, requiere solver lineal)
         PROPAGATOR = @(state, time, d_time, problem) ...
-            bw_euler(state, time, d_time, problem); % Implícito por defecto
+            bw_euler_sparse(state, time, d_time, problem); % Implícito por defecto
 
         % Calculadora de paso temporal
         %   - constant_dt: Paso fijo (simple, puede ser ineficiente)

@@ -5,7 +5,7 @@ function cells = mesh_processor(nodes_file, cells_file, bc_files)
     %   --------
     %   cells : struct array
     %       Cell structures with geometry, connectivity, and boundary info.
-    
+
     % Loading the data...
     [nodes_data, cells_data, bcs_data] = mesh_data_loader( ...
         nodes_file, cells_file, bc_files);

@@ -3,5 +3,4 @@
 function finishing_solver_msg()
     execution_time = toc;
     fprintf("Finalizada en %f s", execution_time);
-    fprintf("\n\n(╯°□°）╯\n")
 end

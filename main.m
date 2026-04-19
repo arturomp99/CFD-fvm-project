@@ -63,8 +63,6 @@ finishing_mesh_processing_msg(); % Tiempo transcurrido
 %   .area               - Longitudes de aristas (áreas de caras en 2D) [m]
 %   .normals            - Vectores normales unitarios salientes por cara
 %   .connectivity       - Índices de células vecinas que comparten caras
-%   .boundary_faces     - Índices de caras ubicadas en fronteras
-%   .boundary_surface_ids - Mapeo a superficies de frontera específicas
 %
 
 %% ========================================================================

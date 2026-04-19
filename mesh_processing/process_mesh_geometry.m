@@ -8,16 +8,16 @@ function cells = process_mesh_geometry( ...
     %   Esta función es el núcleo del procesamiento geométrico, transformando
     %   datos en estructuras de células
     %   completas con toda la información geométrica necesaria para FVM.
-    %  
+    %
     %   1. Inicializa estructuras de células vacías
     %   2. Para cada célula:
     %      a) Extrae coordenadas de nodos
     %      b) Calcula centroide geométrico
-    %      c) Calcula área/volumen usando polyarea()  
+    %      c) Calcula área/volumen usando polyarea()
     %      d) Define caras y calcula normales salientes
     %      e) Identifica caras que están en fronteras
     %   3. Construye información de superficies de frontera
-    %   
+    %
     %   ESTRUCTURA DE SALIDA:
     %   ====================
 
@@ -26,10 +26,10 @@ function cells = process_mesh_geometry( ...
     %   ---------------------
     %   nodes_data : double (M×2)
     %       Coordenadas [x, y] de todos los nodos de la malla
-    %       
+    %
     %   cells_data : cell array (N×1)
     %       Cada elemento es vector de índices de nodos que forman una célula
-    %       
+    %
     %   bcs_data : cell array
     %       Cada elemento es vector de índices de nodos en una superficie de frontera
     %
@@ -46,7 +46,7 @@ function cells = process_mesh_geometry( ...
     %           - .normals: vectores normales unitarios salientes
     %           - .boundary_faces: índices de caras en frontera
     %           - .boundary_surface_ids: mapeo a superficies específicas
-    %       
+    %
 
     % initialize the cells vector
     num_cells = length(cells_data);
@@ -57,14 +57,25 @@ function cells = process_mesh_geometry( ...
         'centroid', [0, 0], ...
         'area', [], ...
         'normals', [0, 0], ...
-        'boundary_faces', [], ...  % indices of faces that are boundaries
+        'boundary_faces', [], ... % indices of faces that are boundaries
         'boundary_surface_ids', [] ... % which boundary surface each boundary face belongs to
     );
     cells = repmat(cell_data, 1, num_cells);
 
-    for cell_index = 1:num_cells
-        % Process the data of one single cell (including boundary faces)
-        cells(cell_index) = process_cell(cells_data{cell_index}, nodes_data, bcs_data);
+    if Config.IS_MESH_PROCESSING_PARALLEL
+
+        parfor cell_index = 1:num_cells
+            % Process the data of one single cell (including boundary faces)
+            cells(cell_index) = process_cell(cells_data{cell_index}, nodes_data, bcs_data);
+        end
+
+    else
+
+        for cell_index = 1:num_cells
+            % Process the data of one single cell (including boundary faces)
+            cells(cell_index) = process_cell(cells_data{cell_index}, nodes_data, bcs_data);
+        end
+
     end
 
 end

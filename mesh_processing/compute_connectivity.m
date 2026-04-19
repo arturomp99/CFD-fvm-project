@@ -24,19 +24,46 @@ function output_cells = compute_connectivity(input_cells)
     output_cells = input_cells;
     num_cells = length(input_cells);
 
-    for cell_index = 1:num_cells
-        output_cells(cell_index).connectivity = [];
-        cell = input_cells(cell_index);
+    if Config.IS_MESH_PROCESSING_PARALLEL
 
-        % Loop through all OTHER cells (skip self-comparison)
-        for other_cell_index = 1:num_cells
+        parfor cell_index = 1:num_cells
+            output_cells(cell_index).connectivity = [];
+            cell = input_cells(cell_index);
 
-            if other_cell_index ~= cell_index
-                other_cell = input_cells(other_cell_index);
+            % Loop through all OTHER cells (skip self-comparison)
+            for other_cell_index = 1:num_cells
 
-                if share_face(cell, other_cell)
-                    output_cells(cell_index).connectivity = ...
-                        [output_cells(cell_index).connectivity, other_cell_index];
+                if other_cell_index ~= cell_index
+                    other_cell = input_cells(other_cell_index);
+
+                    if share_face(cell, other_cell)
+                        output_cells(cell_index).connectivity = ...
+                            [output_cells(cell_index).connectivity, other_cell_index];
+                    end
+
+                end
+
+            end
+
+        end
+
+    else
+
+        for cell_index = 1:num_cells
+            output_cells(cell_index).connectivity = [];
+            cell = input_cells(cell_index);
+
+            % Loop through all OTHER cells (skip self-comparison)
+            for other_cell_index = 1:num_cells
+
+                if other_cell_index ~= cell_index
+                    other_cell = input_cells(other_cell_index);
+
+                    if share_face(cell, other_cell)
+                        output_cells(cell_index).connectivity = ...
+                            [output_cells(cell_index).connectivity, other_cell_index];
+                    end
+
                 end
 
             end

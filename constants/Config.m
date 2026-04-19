@@ -4,9 +4,10 @@ classdef Config
 
     properties (Constant)
         T0 = 0.0; % Tiempo inicial (típicamente 0)
-        T_END = 1.2; % Tiempo final (ajustar según el problema)
+        T_END = 0.2; % Tiempo final (ajustar según el problema)
         SAMPLE_DT = 1e-3; % Intervalo de muestreo para resultados [s]
 
+        IS_MESH_PROCESSING_PARALLEL = false;
         % ============================
         % DEFINICIÓN DEL PROBLEMA:
         % ===========================
@@ -49,11 +50,12 @@ classdef Config
         % Esquema de interpolación para flujos convectivos
         % Opciones disponibles en convective_flux/interpolators/:
         %   - hllc_interpolator: HLLC Riemann solver (alta resolución, captura choques)
+        %   - parallel_hllc_interpolator: parallelized HLLC Riemann solver (alta resolución, captura choques)
         %   - rusanov_interpolator: 1er orden, estable, difusivo (más robusto)
         %   - upwind_interpolator: 1er orden, estable (similar a Rusanov)
         %   - linear_interpolator: 2do orden, menos difusivo, puede ser inestable
         CONVECTIVE_FLUX_INTERPOLATOR = @(state, cells) ...
-            hllc_interpolator(state, cells); % Esquema HLLC por defecto
+            parallel_hllc_interpolator(state, cells); % Esquema HLLC por defecto
 
         % Integrador temporal - define método de avance en tiempo
         %   - fw_euler: Explícito (rápido, limitado por CFL)

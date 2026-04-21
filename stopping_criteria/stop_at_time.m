@@ -6,7 +6,7 @@ function [stop] = stop_at_time(t, t_end)
     %   ---------------------
     %   t : double
     %       Tiempo actual de simulación [s]
-    %       
+    %
     %   t_end : double
     %       Tiempo final deseado [s]
     %
@@ -14,7 +14,6 @@ function [stop] = stop_at_time(t, t_end)
     %   --------
     %   stop : logical
     %       true si t >= t_end, false en caso contrario
-    
 
     if (t >= t_end)
         stop = true;

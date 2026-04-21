@@ -16,12 +16,12 @@ function face_avg_x = get_face_average_x(cell_nodes, face_idx)
     %       Average x-coordinate of the face.
 
     num_vertices = size(cell_nodes, 1);
-    
+
     v1_idx = face_idx;
     v2_idx = get_next_vertex_index(face_idx, num_vertices);
-    
+
     x1 = cell_nodes(v1_idx, 1);
     x2 = cell_nodes(v2_idx, 1);
-    
+
     face_avg_x = (x1 + x2) / 2;
 end

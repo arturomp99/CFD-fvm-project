@@ -9,8 +9,8 @@ function [node1_idx, node2_idx] = get_face_node_indices(cell_node_indices, face_
     %   cell_node_indices : vector
     %       Node indices defining the cell polygon (in order).
     %   face_idx : integer
-    %       Index of the face (1 to num_faces). Faces are defined by 
-    %       consecutive node pairs, with the last face connecting the 
+    %       Index of the face (1 to num_faces). Faces are defined by
+    %       consecutive node pairs, with the last face connecting the
     %       last node back to the first.
     %
     %   Outputs:
@@ -29,7 +29,7 @@ function [node1_idx, node2_idx] = get_face_node_indices(cell_node_indices, face_
     %     Face 4: nodes 40 and 10 (wraps around)
 
     num_nodes = length(cell_node_indices);
-    
+
     node1_idx = cell_node_indices(face_idx);
     next_idx = get_next_vertex_index(face_idx, num_nodes);
     node2_idx = cell_node_indices(next_idx);

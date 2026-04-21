@@ -3,13 +3,13 @@ function [stop] = stop_at_floor(w, t)
     %
     %   NOTA: Originalmente diseñada para un problema de proyectil, no para
     %   ecuaciones de Euler compresibles.
-    %   
+    %
     %
     %   Input
     %   ---------------------
     %   w : double (3*N×1)
     %       Vector de estado CFD [ρ; ρu; E] (mal interpretado actualmente)
-    %       
+    %
     %   t : double
     %       Tiempo actual [s] (no usado)
     %
@@ -17,7 +17,7 @@ function [stop] = stop_at_floor(w, t)
     %   --------
     %   stop : logical
     %       Siempre true (detiene simulación inmediatamente)
-    %       
+    %
 
     stop = true;
 

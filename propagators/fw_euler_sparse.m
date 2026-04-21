@@ -1,4 +1,4 @@
-function [w_new] = fw_euler(w, t, dt, f)
+function [w_new] = fw_euler_sparse(w, t, dt, f)
     %FW_EULER Integrador temporal explícito de Euler hacia adelante
     %
     %   Implementa el método de Euler explícito de primer orden para integrar

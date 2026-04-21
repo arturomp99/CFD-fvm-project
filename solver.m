@@ -47,6 +47,7 @@ function [results] = solver( ...
         w = propagator(w, t, dt, problem);
         t = t + dt;
         results = manager(w, t, results);
+        timestep = timestep + 1;
     end
 
 end

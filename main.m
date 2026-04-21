@@ -88,7 +88,7 @@ w0 = initial_conditions(centroids_x);
 % FUNCIÓN DEL PROBLEMA:
 % Define la función que calcula [A, b] tal que dw/dt = A*w + b
 % Nota: Usando versión implícita que puede manejar matrices no-cero A
-problem = @(state, time) fvm_1D_euler(state, cells, time);
+problem = @(state, time) fvm_1D_euler_implicit(state, cells, time);
 
 % COMPONENTES DEL SOLVER CONFIGURABLES:
 % Todos definidos en Config.m para fácil personalización

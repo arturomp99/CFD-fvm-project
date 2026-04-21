@@ -1,4 +1,4 @@
-function [A, b] = fvm_1D_euler_implicit(state, cells)
+function [A, b] = fvm_1D_euler_implicit(state, cells, time)
     %FVM_1D_EULER_IMPLICIT
     %   Linearised implicit form of the 1D Euler residual:
     %       d(state)/dt = A*state + b
